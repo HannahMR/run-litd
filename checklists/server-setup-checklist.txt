@@ -1,21 +1,20 @@
-Server Setup Checklist
+Lista de Verificación para la Configuración del Servidor
 
-- [ ] Create a new ubuntu user
+- [ ] Crear un nuevo usuario de Ubuntu
   -- $ adduser ubuntu
-- [ ] Give the ubuntu user sudo addess by adding the below line to the /etc/sudoers file below the same entry for root. 
-  -- ubuntu  ALL=(ALL:ALL) ALL
-- [ ] Backup wallet seed phrase securely
-- [ ] Add user password $ sudo passwd
+- [ ] Dar al usuario de Ubuntu acceso sudo agregando la siguiente línea al archivo /etc/sudoers debajo de la misma entrada para root. 
+  -- ubuntu ALL=(ALL:ALL) ALL
+- [ ] Agregar contraseña de usuario $ sudo passwd 
   -- $ sudo passwd
-- [ ] Switch to the ubuntu user 
-- [ ] $ su ubuntu
-- [ ] Add your teams keys to the authorized keys file
-  -- $ mkdir .ssh
-  -- $ touch .ssh/authorized_keys
-  -- $ vim .ssh/authorized_keys 
-- [ ] For security, disable root login and password login via the 
-  -- $ sudo vim /etc/ssh/sshd_config
-  -- Set PermitRootLogin to no
-  -- Set PasswordAuthentication to no
-- [ ] Restart ssh service
+- [ ] Cambiar al usuario de Ubuntu
+  -- $ su ubuntu
+- [ ] Agregar las claves de su equipo al archivo de claves autorizadas 
+  -- $ mkdir .ssh 
+  -- $ touch .ssh/authorized_keys 
+  -- $ nano .ssh/authorized_keys
+- [ ] Por seguridad, deshabilite el inicio de sesión de root y el inicio de sesión con contraseña a través de 
+  -- $ sudo nano /etc/ssh/sshd_config 
+- [ ] Cambie 'PermitRootLogin' a no 
+- [ ] Cambie 'PasswordAuthentication' a no
+- [ ] Reiniciar el servicio ssh 
   -- $ sudo systemctl restart ssh

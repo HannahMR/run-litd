@@ -1,11 +1,11 @@
 #!/bin/bash
 
-# Bitcoin Core Node Setup Script
-# Tested on Ubuntu 24.04
+# Script de Configuración del Nodo Bitcoin Core
+# Probado en Ubuntu 24.04
 
 set -e
 
-# Configuration
+# Configuración
 USER_HOME=$(eval echo ~${SUDO_USER:-$USER})
 BITCOIN_DIR="$USER_HOME/.bitcoin"
 BITCOIN_CONF="$BITCOIN_DIR/bitcoin.conf"
@@ -13,167 +13,167 @@ RPC_AUTH=""
 NETWORK=""
 SERVICE_FILE="/etc/systemd/system/bitcoind.service"
 
-# Check if user is root
-echo "[+] Checking for root privileges..."
+# Verificar si el usuario es root
+echo "[+] Verificando privilegios de root..."
 if [[ $EUID -ne 0 ]]; then
-  echo "[-] This script must be run as root. Use sudo."
+  echo "[-] Este script debe ser ejecutado como root. Use sudo."
   exit 1
 fi
 
-# Update & Install dependencies
-echo "[+] Updating system and installing dependencies..."
+# Actualizar e Instalar dependencias
+echo "[+] Actualizando el sistema e instalando dependencias..."
 apt update && apt upgrade -y
 apt install -y git build-essential libtool autotools-dev automake pkg-config libssl-dev libevent-dev \
-    bsdmainutils libboost-system-dev libboost-filesystem-dev libboost-chrono-dev \
-    libboost-program-options-dev libboost-test-dev libboost-thread-dev libminiupnpc-dev libzmq3-dev python3
+           bsdmainutils libboost-system-dev libboost-filesystem-dev libboost-chrono-dev \
+           libboost-program-options-dev libboost-test-dev libboost-thread-dev libminiupnpc-dev libzmq3-dev python3
 
-# Clone Bitcoin Core repository
-echo "[+] Checking for Bitcoin Core repository..."
+# Clonar el repositorio de Bitcoin Core
+echo "[+] Verificando el repositorio de Bitcoin Core..."
 if [[ ! -d "$USER_HOME/bitcoin" ]]; then
-    echo "[+] Cloning Bitcoin Core repository using v27.2 into $USER_HOME..."
-    git clone -b v27.2 https://github.com/bitcoin/bitcoin.git "$USER_HOME/bitcoin"
-    sudo chown -R ${SUDO_USER:-$USER}:${SUDO_USER:-$USER} "$USER_HOME/bitcoin"
+  echo "[+] Clonando el repositorio de Bitcoin Core usando v29.0 en $USER_HOME..."
+  git clone -b v29.0 https://github.com/bitcoin/bitcoin.git "$USER_HOME/bitcoin"
+  sudo chown -R ${SUDO_USER:-$USER}:${SUDO_USER:-$USER} "$USER_HOME/bitcoin"
 else
-    echo "[!] Bitcoin repository already exists. Skipping clone."
+  echo "[!] El repositorio de Bitcoin ya existe. Omitiendo la clonación."
 fi
 
-# Navigate to the repository
+# Navegar al repositorio
 cd "$USER_HOME/bitcoin/"
 
-# Build Bitcoin Core from source
+# Compilar Bitcoin Core desde la fuente
 if [[ ! -f "/usr/local/bin/bitcoind" ]]; then
-    echo "[+] Building Bitcoin Core. This may take a while..."
-    ./autogen.sh
-    ./configure CXXFLAGS="--param ggc-min-expand=1 --param ggc-min-heapsize=32768" --enable-cxx --with-zmq --without-gui \
-        --disable-shared --with-pic --disable-tests --disable-bench --enable-upnp-default --disable-wallet
-    echo "[+] This is the tedious part..."
-    make -j "$(($(nproc)+1))"
-    echo "[+] Almost done!"
-    sudo make install
+  echo "[+] Compilando Bitcoin Core. Esto puede tardar un rato..."
+  ./autogen.sh
+  ./configure CXXFLAGS="--param ggc-min-expand=1 --param ggc-min-heapsize=32768" --enable-cxx --with-zmq --without-gui \
+          --disable-shared --with-pic --disable-tests --disable-bench --enable-upnp-default --disable-wallet
+  echo "[+] Esta es la parte tediosa..."
+  make -j "$(($(nproc)+1))"
+  echo "[+] ¡Casi terminado!"
+  sudo make install
 else
-    echo "[!] bitcoind is already installed. Skipping build."
+  echo "[!] bitcoind ya está instalado. Omitiendo la compilación."
 fi
 
-# Head back to the user home directory
+# Volver al directorio de inicio del usuario
 cd "$USER_HOME"
 
-# Generate RPC password
-echo "[+] Generating RPC password for other services to connect to bitcoind..."
+# Generar contraseña RPC
+echo "[+] Generando contraseña RPC para que otros servicios se conecten a bitcoind..."
 wget -q https://raw.githubusercontent.com/bitcoin/bitcoin/master/share/rpcauth/rpcauth.py -O rpcauth.py
 if [[ ! -f rpcauth.py ]]; then
-    echo "[-] Failed to download RPC password generator. Exiting."
-    exit 1
+  echo "[-] No se pudo descargar el generador de contraseñas RPC. Saliendo."
+  exit 1
 fi
 
-# Run the RPC auth script
+# Ejecutar el script de autenticación RPC
 RPC_OUTPUT=$(python3 ./rpcauth.py bitcoinrpc)
 RPC_AUTH=$(echo "$RPC_OUTPUT" | grep -oP '(?<=rpcauth=)\S+')
 RPC_PASSWORD=$(echo "$RPC_OUTPUT" | awk '/Your password:/ {getline; print $1}' | tr -d '[:space:]')
 
-# Display the password to the user
-echo "[+] The following password has been generated for your RPC connection:"
-echo "    Password: $RPC_PASSWORD"
-echo "[!] Please save this password securely, as it will not be displayed again."
+# Mostrar la contraseña al usuario
+echo "[+] La siguiente contraseña ha sido generada para su conexión RPC:"
+echo "    Contraseña: $RPC_PASSWORD"
+echo "[!] Por favor, guarde esta contraseña de forma segura, ya que no se mostrará de nuevo."
 
-# Confirm user saved the password
-read -p "Have you saved the password? (yes/no): " CONFIRM
-if [[ "$CONFIRM" != "yes" ]]; then
-    echo "[-] Please save the password before continuing. Exiting setup."
-    exit 1
+# Confirmar que el usuario guardó la contraseña
+read -p "¿Ha guardado la contraseña? (si/no): " CONFIRM
+if [[ "$CONFIRM" != "si" ]]; then
+  echo "[-] Por favor, guarde la contraseña antes de continuar. Saliendo de la configuración."
+  exit 1
 fi
 
-# Ask user to choose network
+# Preguntar al usuario para elegir la red
 while true; do
-    read -p "Do you want to run on mainnet or signet? (mainnet/signet): " NETWORK
-    if [[ "$NETWORK" == "mainnet" || "$NETWORK" == "signet" ]]; then
-        break
-    else
-        echo "[-] Invalid input. Please enter 'mainnet' or 'signet'."
-    fi
+  read -p "¿Desea ejecutar Bitcoin en mainnet o signet? (mainnet/signet): " NETWORK
+  if [[ "$NETWORK" == "mainnet" || "$NETWORK" == "signet" ]]; then
+    break
+  else
+    echo "[-] Entrada inválida. Por favor, ingrese 'mainnet' o 'signet'."
+  fi
 done
 
-# Create bitcoin.conf file
+# Crear archivo bitcoin.conf
 if [[ -f "$BITCOIN_CONF" ]]; then
-    read -p "[!] bitcoin.conf already exists. Overwrite? (yes/no): " OVERWRITE
-    if [[ "$OVERWRITE" != "yes" ]]; then
-        echo "[!] Skipping bitcoin.conf creation."
-    else
-        echo "[+] Overwriting bitcoin.conf..."
-    fi
+  read -p "[!] bitcoin.conf ya existe. ¿Sobrescribir? (si/no): " OVERWRITE
+  if [[ "$OVERWRITE" != "si" ]]; then
+    echo "[!] Omitiendo la creación de bitcoin.conf..."
+  else
+    echo "[+] Sobrescribiendo bitcoin.conf..."
+  fi
 fi
 
 mkdir -p $BITCOIN_DIR
 sudo chown -R ${SUDO_USER:-$USER}:${SUDO_USER:-$USER} $BITCOIN_DIR
 cat <<EOF > $BITCOIN_CONF
-# Set the best block hash here:
-# For v27.2 on Signet and good hash to try is... 
-# 00000131de56604f752c0b072f468a2904e5d807e7ee79bd32a5be00bef17b2e
+# Establezca el mejor hash de bloque aquí­:
+# Para v29.0 en Signet, un buen hash para probar es...
+# 00000002d38fc984fa25a057930af276c00a001428bd68b8216f826d580a382f
 #assumevalid=
 
-# Run as a daemon mode without an interactive shell
+# Ejecutar en modo demonio sin un shell interactivo
 daemon=1
 
-# Set the number of megabytes of RAM to use, set to like 50% of available memory
+# Establecer el número de megabytes de RAM a usar, establecer como en el 50% de la memoria disponible
 dbcache=3000
 
-# Add visibility into mempool and RPC calls for potential LND debugging
+# Añadir visibilidad a la mempool y llamadas RPC para la depuración potencial de LND
 debug=mempool
 debug=rpc
 
-# Turn off the wallet, it won't be used
+# Desactivar la billetera, no se usará
 disablewallet=1
 
-# Don't bother listening for peers
+# No se moleste en escuchar a los pares
 listen=0
 
-# Constrain the mempool to the number of megabytes needed:
+# Limitar la mempool al número de megabytes necesarios:
 maxmempool=100
 
-# Limit uploading to peers
+# Limitar la carga a los pares
 maxuploadtarget=1000
 
-# Turn off serving SPV nodes
+# Desactivar el servicio de nodos SPV
 nopeerbloomfilters=1
 peerbloomfilters=0
 
-# Don't accept deprecated multi-sig style
+# No aceptar el estilo multi-firma obsoleto
 permitbaremultisig=0
 
-# Set the RPC auth to what was set above
+# Establecer la autenticación RPC a lo que se estableció anteriormente
 rpcauth=$RPC_AUTH
 
-# Turn on the RPC server
+# Activar el servidor RPC
 server=1
 
-# Reduce the log file size on restarts
+# Reducir el tamaño del archivo de registro en los reinicios
 shrinkdebuglog=1
 
-# Set signet if needed
+# Establecer signet si es necesario
 $( [[ "$NETWORK" == "signet" ]] && echo "signet=1" || echo "#signet=1" )
 
-# Prune the blockchain. Example prune to 50GB
+# Podar la cadena de bloques. Ejemplo de poda a 50GB
 prune=50000
 
-# Turn on transaction lookup index, if pruned node is off. 
+# Activar el índice de búsqueda de transacciones, si el nodo podado está desactivado.
 txindex=0
 
-# Turn on ZMQ publishing
+# Activar la publicación de ZMQ
 zmqpubrawblock=tcp://127.0.0.1:28332
 zmqpubrawtx=tcp://127.0.0.1:28333
 EOF
 
-# Set ownership of the configuration file to the user
+# Establecer la propiedad del archivo de configuración al usuario
 sudo chown ${SUDO_USER:-$USER}:${SUDO_USER:-$USER} $BITCOIN_CONF
 
-# Inform user where the configuration file is located
-echo "[+] Your bitcoin.conf file has been created at: $BITCOIN_CONF"
+# Informar al usuario dónde se encuentra el archivo de configuración
+echo "[+] Su archivo bitcoin.conf ha sido creado en: $BITCOIN_CONF"
 
-# Create systemd service file
+# Crear archivo de servicio systemd
 if [[ ! -f "$SERVICE_FILE" ]]; then
-    echo "[+] Creating systemd service file for bitcoind..."
-    cat <<EOF > $SERVICE_FILE
+  echo "[+] Creando archivo de servicio systemd para bitcoind..."
+  cat <<EOF > $SERVICE_FILE
 [Unit]
-Description=Bitcoin daemon
+Description=Demonio de Bitcoin
 After=network.target
 
 [Service]
@@ -188,23 +188,23 @@ Group=sudo
 WantedBy=multi-user.target
 EOF
 else
-    echo "[!] Systemd service file already exists. Skipping creation."
+  echo "[!] El archivo de servicio Systemd ya existe. Omitiendo la creaciÃ³n."
 fi
 
-# Enable, reload, and start systemd service
+# Habilitar, recargar e iniciar el servicio systemd
 systemctl enable bitcoind
 systemctl daemon-reload
 if ! systemctl is-active --quiet bitcoind; then
-    systemctl start bitcoind
-    echo "[+] bitcoind service started."
+  systemctl start bitcoind
+  echo "[+] El servicio bitcoind se inició."
 else
-    echo "[!] bitcoind service is already running."
+  echo "[!] El servicio bitcoind ya se está ejecutando."
 fi
 
-# Done
+# Terminado
 cat <<"EOF"
 
-[+] Bitcoin Core built, configured, and service enabled successfully!
+[+] ¡Bitcoin Core compilado, instalado, configurado y servicio habilitado con éxito!
 
     ⠀⠀⠀⠀⠀⠀⠀⠀⣀⣤⣴⣶⣾⣿⣿⣿⣿⣷⣶⣦⣤⣀⠀⠀⠀⠀⠀⠀⠀⠀
     ⠀⠀⠀⠀⠀⣠⣴⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣦⣄⠀⠀⠀⠀⠀
@@ -222,5 +222,5 @@ cat <<"EOF"
     ⠀⠀⠀⠀⠀⠙⠻⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⠟⠋⠀⠀⠀⠀⠀
 ⠀    ⠀⠀⠀⠀⠀⠀⠀⠉⠛⠻⠿⢿⣿⣿⣿⣿⡿⠿⠟⠛⠉⠀⠀⠀⠀⠀⠀⠀⠀
 
-[+] Your Bitcoin node is now up and running!
+[+] ¡Su nodo de Bitcoin ahora está en funcionamiento!
 EOF

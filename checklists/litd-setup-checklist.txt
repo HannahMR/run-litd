@@ -1,67 +1,65 @@
-Litd Setup Checklist 
+Lista de Verificación para la Configuración de Litd
 
-- [ ] when compiling litd from source we will need both GoLang and Nodejs
-- [ ] Install a recent version of GoLang
+- [ ] Cuando se compila litd desde la fuente, necesitaremos tanto GoLang como Nodejs
+- [ ] Instalar una versión reciente de GoLang
   -- $ wget https://golang.org/dl/go1.21.0.linux-amd64.tar.gz
   -- $ sudo tar -xvf go1.21.0.linux-amd64.tar.gz
   -- $ sudo mv go /usr/local && rm go1.21.0.linux-amd64.tar.gz
   -- $ mkdir ~/go
-- [ ] Add Go path
-  -- $ vim ~/.profile
-  -- Add...
+- [ ] Agregar la ruta de Go
+  -- $ nano ~/.profile
+-- Agregar:
   -- GOPATH=$HOME/go
   -- PATH="$HOME/bin:$GOPATH/bin:$HOME/.local/bin:/usr/local/go/bin:$PATH"
-- [ ] Reload the profile
+- [ ] Recargar el perfil
   -- $ . ~/.profile
-- [ ] Check that GoLang was installed
+- [ ] Comprobar que GoLang fue instalado
   -- $ go version
-- [ ] Install Nodejs
-  -- $ sudo apt-get install -y curl
+- [ ] Instalar Nodejs
+  -- $ sudo apt install -y curl
   -- $ curl -fsSL https://deb.nodesource.com/setup_22.x -o nodesource_setup.sh
   -- $ sudo -E bash nodesource_setup.sh
-  -- $ sudo apt-get install -y nodejs
-- [ ] Install Yarn
+  -- $ sudo apt install -y nodejs
+- [ ] Instalar Yarn
   -- $ sudo npm install -g yarn
-- [ ] check that npm, yarn and NodeJS were installed and is a stable version
-- [ ] $ node -v
-- [ ] $ npm -v
-- [ ] $ yarn --version
-- [ ] Clone the lightning-terminal repo
-   -- $ git clone https://github.com/lightninglabs/lightning-terminal.git
-  -- $ cd lightning-terminal/ 
-  -- $ git checkout v0.13.6-alpha
+- [ ] Comprobar que npm, yarn y NodeJS fueron instalados y es una versión estable
+  -- $ node -v
+  -- $ npm -v
+  -- $ yarn --version
+- [ ] Clonar el repositorio lightning-terminal
+  -- $ git clone https://github.com/lightninglabs/lightning-terminal.git
+  -- $ cd lightning-terminal/
+  -- $ git checkout v0.14.0-alpha
   -- $ make install
   -- $ make go-install-cli
-- [ ] Check that litd was installed
+- [ ] Comprobar que litd fue instalado
   -- $ which litd
-- [ ] Create a lit.conf file
-  -- $ mkdir `/.lit
-  -- $ vim ~/.lit/lit.conf
-  -- Have a look at the example lit.conf file at /example-files/lit.conf
-- [ ] Create an LND wallet a password and a wallet_password file 
-  -- first ensure that the below two lines are commented out of the lit.conf file
-  -- lnd.wallet-unlock-password-file=/home/ubuntu/.lnd/wallet_password
-  -- lnd.wallet-unlock-allow-create=true
+- [ ] Crear un archivo lit.conf
+  -- $ mkdir ~/.lit
+  -- $ nano ~/.lit/lit.conf
+- [ ] Ver el archivo de ejemplo lit.conf en /example-files/lit.conf
+- [ ] Crear una billetera LND, una contraseña y un archivo wallet_password
   -- $ mkdir ~/.lnd
   -- $ touch ~/.lnd/wallet_password
   -- $ openssl rand -hex 21 > ~/.lnd/wallet_password
-  -- Run litd via $ litd 
-  -- Via a seperate process create an LND wallet 
-  -- $ lncli create 
-  --- Follow prompts and use the generated password as the wallet password 
-  --  Generate a new seed
-  -- Skip encrypting the seed phrase (Or encrypt it if that makes sense for your usecase!) 
-  -- Properly backup your seed phrase! VERY IMPORTANT!!!! 
-- [ ] Uncomment the below two lines in the lit.conf file
+- [ ] Ejecutar litd
+  -- $ litd
+- [ ] A través de un proceso separado -otra terminal-, crear una billetera LND
+  -- $ lncli create
+- [ ] Seguir las indicaciones y usar la contraseña generada como la contraseña de la billetera
+- [ ] Generar una nueva semilla
+- [ ] Omitir el cifrado de la frase semilla (¡O cifrarla si eso tiene sentido para su caso de uso!)
+- [ ] ¡Respaldar apropiadamente su frase semilla! ¡¡¡MUY IMPORTANTE!!!!
+- [ ] Descomentar las siguientes dos líneas en el archivo lit.conf
   -- lnd.wallet-unlock-password-file=/home/ubuntu/.lnd/wallet_password
   -- lnd.wallet-unlock-allow-create=true
-- [ ] Set litd to start on reboot via systemd 
-  -- See the example litd.service example file /example-files/litd.service
-  -- Create file at /etc/systemd/system/ 
+- [ ] Ver el archivo de ejemplo litd.service en /example-files/litd.service
+- [ ] Configurar litd para que se inicie al reiniciar a través de systemd
+- [ ] Crear un archivo en /etc/systemd/system/
   -- $ sudo touch /etc/systemd/system/litd.service
-- [ ] Enble and run the service
+[ ] Habilitar y ejecutar el servicio
   -- $ sudo systemctl daemon-reload
   -- $ sudo systemctl start litd
-- [ ] Check that litd is running as expected
+[ ] Comprobar que litd se está ejecutando como se espera
   -- $ sudo systemctl status litd
   -- $ sudo lsof -n -P -i | grep LISTEN

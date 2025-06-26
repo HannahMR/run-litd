@@ -1,9 +1,9 @@
 #!/bin/bash
 
-# litd Installation Script for Ubuntu
-# This script automates the installation and configuration of Lightning Terminal (litd)
+# Script de Instalación de litd para Ubuntu
+# Este script automatiza la instalación y configuración de Lightning Terminal (litd)
 
-set -e  # Exit immediately if a command exits with a non-zero status
+set -e  # Salir inmediatamente si un comando termina con un estado distinto de cero
 
 # Variables
 USER_HOME=$(eval echo ~${SUDO_USER:-$USER})
@@ -12,154 +12,154 @@ LIT_CONF_FILE="$LIT_CONF_DIR/lit.conf"
 LND_DIR="$USER_HOME/.lnd"
 WALLET_PASSWORD_FILE="$LND_DIR/wallet_password"
 GO_VERSION="1.21.0"
-NODE_VERSION="22.x"  # Ensure an even-numbered, stable release
-LITD_VERSION="v0.14.0-alpha"  # Version of litd to be installed
+NODE_VERSION="22.x"  # Asegurar una versión estable y par
+LITD_VERSION="v0.14.0-alpha"  # Versión de litd a instalar
 SERVICE_FILE="/etc/systemd/system/litd.service"
 
-
-# Clone and build litd
-echo "[+] Checking if Lightning Terminal is already installed..."
+# Clonar y construir litd
+echo "[+] Verificando si Lightning Terminal ya está instalado..."
 if [[ -f "$USER_HOME/go/bin/litd" ]]; then
-    echo "[+] Lightning Terminal (litd) is already installed. Skipping build."
+  echo "[+] Lightning Terminal (litd) ya está instalado. Omitiendo la instalación."
 else
-    echo "[+] litd not found in $USER_HOME/go/bin. Proceeding with installation."
+  echo "[+] litd no se encontró en $USER_HOME/go/bin. Procediendo con la instalación."
 
-    echo "[+] Ensuring $USER_HOME/go directory exists and is owned by the current user..."
-    if [[ -d "$USER_HOME/go" ]]; then
-        echo "[+] Directory $USER_HOME/go already exists."
-    else
-        echo "[+] Creating $USER_HOME/go directory..."
-        mkdir -p "$USER_HOME/go"
-        echo "[+] Directory $USER_HOME/go created successfully."
-    fi
-    echo "[+] Ensuring proper ownership of $USER_HOME/go..."
-    sudo chown -R ${SUDO_USER:-$USER}:${SUDO_USER:-$USER} "$USER_HOME/go"
+  echo "[+] Asegurando que el directorio $USER_HOME/go existe y es propiedad del usuario actual..."
+  if [[ -d "$USER_HOME/go" ]]; then
+    echo "[+] El directorio $USER_HOME/go ya existe."
+  else
+    echo "[+] Creando el directorio $USER_HOME/go..."
+    mkdir -p "$USER_HOME/go"
+    echo "[+] Directorio $USER_HOME/go creado con éxito."
+  fi
+  echo "[+] Asegurando la propiedad adecuada de $USER_HOME/go..."
+  sudo chown -R ${SUDO_USER:-$USER}:${SUDO_USER:-$USER} "$USER_HOME/go"
 
-    # Ensure required build tools are installed
-    echo "[+] Checking for required build tools..."
-    if ! command -v make &> /dev/null; then
-        echo "[+] 'make' not found. Installing build-essential package..."
-        sudo apt update
-        sudo apt install build-essential -y
-    else
-        echo "[+] 'make' is already installed."
-    fi
+  # Asegurar que las herramientas de construcción requeridas estén instaladas
+  echo "[+] Verificando las herramientas de construcción requeridas..."
+  if ! command -v make &> /dev/null; then
+    echo "[+] 'make' no se encontró. Instalando el paquete build-essential..."
+    sudo apt update
+    sudo apt install build-essential -y
+  else
+    echo "[+] 'make' ya está instalado."
+  fi
 
-    echo "[+] Checking if Lightning Terminal repository already exists..."
-    if [[ -d "$USER_HOME/lightning-terminal" ]]; then
-        echo "[!] Repository already exists. Using existing directory."
-        cd "$USER_HOME/lightning-terminal"
+  echo "[+] Verificando si el repositorio de Lightning Terminal ya existe..."
+  if [[ -d "$USER_HOME/lightning-terminal" ]]; then
+    echo "[!] El repositorio ya existe. Usando el directorio existente."
+    cd "$USER_HOME/lightning-terminal"
+  else
+    echo "[+] Clonando el repositorio de Lightning Terminal en $USER_HOME/lightning-terminal..."
+    if git clone https://github.com/lightninglabs/lightning-terminal.git "$USER_HOME/lightning-terminal"; then
+      echo "[+] Repositorio clonado con éxito."
+      cd "$USER_HOME/lightning-terminal"
+      # Asegurar la propiedad del directorio de Lightning Terminal
+      sudo chown -R ${SUDO_USER:-$USER}:${SUDO_USER:-$USER} "$USER_HOME/lightning-terminal"
+      echo "[+] Propiedad establecida en ${SUDO_USER:-$USER} para $USER_HOME/lightning-terminal."
     else
-        echo "[+] Cloning Lightning Terminal repository into $USER_HOME/lightning-terminal..."
-        if git clone https://github.com/lightninglabs/lightning-terminal.git "$USER_HOME/lightning-terminal"; then
-            echo "[+] Repository cloned successfully."
-            cd "$USER_HOME/lightning-terminal"
-            # Ensure Lightning Terminal directory ownership
-            sudo chown -R ${SUDO_USER:-$USER}:${SUDO_USER:-$USER} "$USER_HOME/lightning-terminal"
-        else
-            echo "[-] Failed to clone repository. Check your internet connection and permissions."
-            exit 1
-        fi
+      echo "[-] No se pudo clonar el repositorio. Verifique su conexión a Internet y permisos."
+      exit 1
     fi
+  fi
 
-    echo "[+] Checking out version $LITD_VERSION..."
-    if git checkout tags/$LITD_VERSION; then
-        echo "[+] Checked out version $LITD_VERSION."
-        echo "[+] Building litd... This might take a few minutes."
-        export GOPATH=$USER_HOME/go
-        export PATH=$USER_HOME/go/bin:/usr/local/go/bin:$PATH
-        if make install && make go-install-cli; then
-            echo "[+] litd successfully built and installed!"
-            # Ensure binary ownership
-            sudo chown -R ${SUDO_USER:-$USER}:${SUDO_USER:-$USER} "$USER_HOME/go"
-        else
-            echo "[-] Failed to build and install litd. Check for errors in the build process."
-            exit 1
-        fi
+  echo "[+] Verificando la versión $LITD_VERSION..."
+  if git checkout tags/$LITD_VERSION; then
+    echo "[+] Versión $LITD_VERSION verificada."
+    echo "[+] Construyendo litd... Esto puede tardar unos minutos."
+    export GOPATH=$USER_HOME/go
+    export PATH=$USER_HOME/go/bin:/usr/local/go/bin:$PATH
+    if make install && make go-install-cli; then
+      echo "[+] ¡litd compilado e instalado con éxito!"
+      # Asegurar la propiedad del binario
+      sudo chown -R ${SUDO_USER:-$USER}:${SUDO_USER:-$USER} "$USER_HOME/go"
     else
-        echo "[-] Failed to checkout version $LITD_VERSION. Ensure the tag exists."
-        exit 1
+      echo "[-] No se pudo compilar e instalar litd. Verifique si hay errores en el proceso de compilación."
+      exit 1
     fi
+  else
+    echo "[-] No se pudo verificar la versión $LITD_VERSION. Asegúrese de que la etiqueta exista."
+    exit 1
+  fi
 fi
 
-# Ensure ~/.lnd directory exists
-echo "[+] Ensuring the ~/.lnd directory exists..."
+# Asegurar que el directorio ~/.lnd existe
+echo "[+] Asegurando que el directorio ~/.lnd existe..."
 if [[ ! -d $LND_DIR ]]; then
-    mkdir -p $LND_DIR
-    echo "[+] Created directory at $LND_DIR."
-    # Ensure ~/.lnd directory is owned by the user
-    echo "[+] Ensuring ownership of $LND_DIR..."
-    sudo chown -R ${SUDO_USER:-$USER}:${SUDO_USER:-$USER} $LND_DIR
-    echo "[+] Ownership set to ${SUDO_USER:-$USER} for $LND_DIR."
+  mkdir -p $LND_DIR
+  echo "[+] Se creó el directorio en $LND_DIR."
+  # Asegurar que el directorio ~/.lnd es propiedad del usuario
+  echo "[+] Asegurando la propiedad de $LND_DIR..."
+  sudo chown -R ${SUDO_USER:-$USER}:${SUDO_USER:-$USER} $LND_DIR
+  echo "[+] Propiedad establecida en ${SUDO_USER:-$USER} para $LND_DIR."
 else
-    echo "[!] Directory $LND_DIR already exists."
+  echo "[!] El directorio $LND_DIR ya existe."
 fi
 
-# Generate wallet password
-echo "[+] Checking if wallet password file exists and is not empty..."
+# Generar contraseña de la billetera
+echo "[+] Verificando si el archivo de contraseña de la billetera existe y no está vacío..."
 if [[ -f $WALLET_PASSWORD_FILE && -s $WALLET_PASSWORD_FILE ]]; then
-    echo "[+] Wallet password file already exists and is not empty. Skipping generation."
+  echo "[+] El archivo de contraseña de la billetera ya existe y no está vacío. Omitiendo la generación."
 else
-    echo "[+] Generating wallet password..."
-    openssl rand -hex 21 > $WALLET_PASSWORD_FILE
-    if [[ -f $WALLET_PASSWORD_FILE ]]; then
-        echo "[+] Wallet password generated and saved to $WALLET_PASSWORD_FILE."
-        # Ensure wallet password file is owned by the user
-        echo "[+] Ensuring ownership of $WALLET_PASSWORD_FILE..."
-        sudo chown ${SUDO_USER:-$USER}:${SUDO_USER:-$USER} $WALLET_PASSWORD_FILE
-        echo "[+] Ownership set to ${SUDO_USER:-$USER} for $WALLET_PASSWORD_FILE."
-    else
-        echo "[-] Failed to generate wallet password. Exiting."
-        exit 1
-    fi
+  echo "[+] Generando contraseña de la billetera..."
+  openssl rand -hex 21 > $WALLET_PASSWORD_FILE
+  if [[ -f $WALLET_PASSWORD_FILE ]]; then
+    echo "[+] Contraseña de la billetera generada y guardada en $WALLET_PASSWORD_FILE."
+    # Asegurar que el archivo de contraseña de la billetera es propiedad del usuario
+    echo "[+] Asegurando la propiedad de $WALLET_PASSWORD_FILE..."
+    sudo chown ${SUDO_USER:-$USER}:${SUDO_USER:-$USER} $WALLET_PASSWORD_FILE
+    echo "[+] Propiedad establecida en ${SUDO_USER:-$USER} para $WALLET_PASSWORD_FILE."
+  else
+    echo "[-] No se pudo generar la contraseña de la billetera. Saliendo."
+    exit 1
+  fi
 fi
 
-# Configure litd
-echo "[+] Step 4: Configuring Lightning Terminal (litd)..."
+# Configurar litd
+echo "[+] Paso 4: Configurando Lightning Terminal (litd)..."
 
-# Check if configuration directory exists
+# Verificar si el directorio de configuración existe
 if [[ ! -d $LIT_CONF_DIR ]]; then
-    mkdir -p $LIT_CONF_DIR
-    echo "[+] Created configuration directory at $LIT_CONF_DIR."
-    # Ensure .lit directory is owned by the user
-    echo "[+] Ensuring ownership of $LIT_CONF_DIR..."
-    sudo chown -R ${SUDO_USER:-$USER}:${SUDO_USER:-$USER} $LIT_CONF_DIR
-    echo "[+] Ownership set to ${SUDO_USER:-$USER} for $LIT_CONF_DIR."
+  mkdir -p $LIT_CONF_DIR
+  echo "[+] Se creó el directorio de configuración en $LIT_CONF_DIR."
+  # Asegurar que el directorio .lit es propiedad del usuario
+  echo "[+] Asegurando la propiedad de $LIT_CONF_DIR..."
+  sudo chown -R ${SUDO_USER:-$USER}:${SUDO_USER:-$USER} $LIT_CONF_DIR
+  echo "[+] Propiedad establecida en ${SUDO_USER:-$USER} para $LIT_CONF_DIR."
 else
-    echo "[!] $LIT_CONF_DIR already exists."
+  echo "[!] $LIT_CONF_DIR ya existe."
 fi
 
-# Check if configuration file exists and is not empty
+# Verificar si el archivo de configuración existe y no está vacío
 if [[ -f $LIT_CONF_FILE && -s $LIT_CONF_FILE ]]; then
-    echo "[+] Configuration file already exists and is not empty. Skipping creation."
+  echo "[+] El archivo de configuración ya existe y no está vacío. Omitiendo la creación."
 else
-    echo "[+] Generating new configuration file..."
+  echo "[+] Generando nuevo archivo de configuración..."
 
-    read -p "Is your bitcoind backend running on mainnet or signet? [mainnet/signet]: " NETWORK
-    NETWORK=$(echo "$NETWORK" | tr '[:upper:]' '[:lower:]')
-    if [[ $NETWORK != "mainnet" && $NETWORK != "signet" ]]; then
-        echo "[-] Invalid network selection. Please choose either 'mainnet' or 'signet'."
-        exit 1
-    fi
+  read -p "¿Su backend de bitcoind se está ejecutando en mainnet o signet? [mainnet/signet]: " NETWORK
+  NETWORK=$(echo "$NETWORK" | tr '[:upper:]' '[:lower:]')
+  if [[ $NETWORK != "mainnet" && $NETWORK != "signet" ]]; then
+    echo "[-] Selección de red inválida. Por favor, elija 'mainnet' o 'signet'."
+    exit 1
+  fi
 
-    read -s -p "Enter the RPC password for your bitcoind backend: " RPC_PASSWORD
-    echo
-    if [[ -z $RPC_PASSWORD ]]; then
-        echo "[-] RPC password cannot be empty. Exiting."
-        exit 1
-    fi
+  read -s -p "Ingrese la contraseña RPC para su backend de bitcoind: " RPC_PASSWORD
+  echo
+  if [[ -z $RPC_PASSWORD ]]; then
+    echo "[-] La contraseña RPC no puede estar vacía. Saliendo."
+    exit 1
+  fi
 
-    read -s -p "Enter a UI password for litd: " UI_PASSWORD
-    echo
-    if [[ -z $UI_PASSWORD ]]; then
-        echo "[-] UI password cannot be empty. Exiting."
-        exit 1
-    fi
+  read -s -p "Ingrese una contraseña de UI para litd: " UI_PASSWORD
+  echo
+  if [[ -z $UI_PASSWORD ]]; then
+    echo "[-] La contraseña de la UI no puede estar vacía. Saliendo."
+    exit 1
+  fi
 
-    read -p "Enter a Lightning Node alias: " NODE_ALIAS
+  read -p "Ingrese un alias de nodo Lightning: " NODE_ALIAS
 
-    # Prepare the base configuration content
-    CONFIG_CONTENT="# Litd Settings
+  # Preparar el contenido de configuración base
+  CONFIG_CONTENT="# Configuración de Litd
 enablerest=true
 httpslisten=0.0.0.0:8443
 uipassword=$UI_PASSWORD
@@ -169,7 +169,7 @@ pool-mode=disable
 loop-mode=disable
 autopilot.disable=true
 
-# Bitcoin Configuration
+# Configuración de Bitcoin
 lnd.bitcoin.active=1
 lnd.bitcoin.node=bitcoind
 lnd.bitcoind.rpchost=127.0.0.1
@@ -178,7 +178,7 @@ lnd.bitcoind.rpcpass=$RPC_PASSWORD
 lnd.bitcoind.zmqpubrawblock=tcp://127.0.0.1:28332
 lnd.bitcoind.zmqpubrawtx=tcp://127.0.0.1:28333
 
-# LND General Settings
+# Configuración General de LND
 #lnd.wallet-unlock-password-file=/home/ubuntu/.lnd/wallet_password
 #lnd.wallet-unlock-allow-create=true
 lnd.debuglevel=debug
@@ -189,14 +189,14 @@ lnd.accept-amp=true
 lnd.rpcmiddleware.enable=true
 lnd.autopilot.active=0
 
-# LND Protocol Settings
+# Configuración del Protocolo LND
 lnd.protocol.simple-taproot-chans=true
 lnd.protocol.simple-taproot-overlay-chans=true
 lnd.protocol.option-scid-alias=true
 lnd.protocol.zero-conf=true
 lnd.protocol.custom-message=17
 
-# Taproot Assets Settings
+# Configuración de Activos Taproot
 #taproot-assets.rpclisten=0.0.0.0:10029
 #taproot-assets.allow-public-uni-proof-courier=true
 #taproot-assets.allow-public-stats=true
@@ -206,23 +206,23 @@ lnd.protocol.custom-message=17
 #taproot-assets.experimental.rfq.priceoracleaddress=use_mock_price_oracle_service_promise_to_not_use_on_mainnet
 #taproot-assets.experimental.rfq.mockoracleassetsperbtc=100000000"
 
-    # Apply mainnet-specific logic
-    if [[ $NETWORK == "mainnet" ]]; then
-        CONFIG_CONTENT=$(echo "$CONFIG_CONTENT" | sed "/pool-mode=disable/s/^/# /" | sed "/loop-mode=disable/s/^/# /" | sed "/autopilot.disable=true/s/^/# /")
-    fi
+  # Aplicar lógica específica de mainnet
+  if [[ $NETWORK == "mainnet" ]]; then
+    CONFIG_CONTENT=$(echo "$CONFIG_CONTENT" | sed "/pool-mode=disable/s/^/# /" | sed "/loop-mode=disable/s/^/# /" | sed "/autopilot.disable=true/s/^/# /")
+  fi
 
-    # Write configuration content to file
-    echo "$CONFIG_CONTENT" > $LIT_CONF_FILE
-    echo "[+] Configuration file created at $LIT_CONF_FILE."
+  # Escribir contenido de configuración en el archivo
+  echo "$CONFIG_CONTENT" > $LIT_CONF_FILE
+  echo "[+] Archivo de configuración creado en $LIT_CONF_FILE."
 
-    # Ensure configuration file is owned by the user
-    echo "[+] Ensuring ownership of $LIT_CONF_FILE..."
-    sudo chown ${SUDO_USER:-$USER}:${SUDO_USER:-$USER} $LIT_CONF_FILE
-    echo "[+] Ownership set to ${SUDO_USER:-$USER} for $LIT_CONF_FILE."
+  # Asegurar que el archivo de configuración es propiedad del usuario
+  echo "[+] Asegurando la propiedad de $LIT_CONF_FILE..."
+  sudo chown ${SUDO_USER:-$USER}:${SUDO_USER:-$USER} $LIT_CONF_FILE
+  echo "[+] Propiedad establecida en ${SUDO_USER:-$USER} para $LIT_CONF_FILE."
 fi
 
-echo "Now you have a task! Start litd with $ litd, do so as the user who will be running litd."
-echo "Walk through the wallet creation process using $ lncli --network=[yournetwork] create."
-echo "Use the already generated password which can be found via $ cat ~/.lnd/wallet_password"
-echo "DO NOT FORGET TO PROPERLY BACKUP YOUR SEED!!!" 
-echo "Then, stop litd, and run the next script... almost there!!!"
+echo "¡Ahora tienes una tarea! Inicia litd con $ litd, hazlo como el usuario que ejecutará litd."
+echo "Sigue el proceso de creación de la billetera usando $ lncli --network=[tured] create."
+echo "Usa la contraseña ya generada que se puede encontrar a través de $ cat ~/.lnd/wallet_password"
+echo "¡¡¡NO OLVIDES RESPALDAR ADECUADAMENTE TU SEMILLA!!!"
+echo "Luego, detén litd y ejecuta el siguiente script... ¡¡¡ya casi terminamos!!!"

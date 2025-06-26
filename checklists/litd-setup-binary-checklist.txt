@@ -1,49 +1,50 @@
-Litd Binary Setup Checklist (v0.14.0-alpha)
+Lista de Verificación de Configuración de Litd Binario (v0.14.0-alpha)
 
-- [ ] Download files
+- [ ] Descargar archivos
   -- $ gpg --keyserver hkps://keyserver.ubuntu.com --recv-keys F4FC70F07310028424EFC20A8E4256593F177720
   -- $ wget https://github.com/lightninglabs/lightning-terminal/releases/download/v0.14.0-alpha/lightning-terminal-linux-amd64-v0.14.0-alpha.tar.gz
   -- $ wget https://github.com/lightninglabs/lightning-terminal/releases/download/v0.14.0-alpha/manifest-guggero-v0.14.0-alpha.sig
   -- $ wget https://github.com/lightninglabs/lightning-terminal/releases/download/v0.14.0-alpha/manifest-v0.14.0-alpha.txt
-- [ ] Verifying signature
+- [ ] Verificar la firma
   -- $ gpg --verify manifest-guggero-v0.14.0-alpha.sig manifest-v0.14.0-alpha.txt
-- [ ] Check SHASUM
+- [ ] Comprobar SHASUM
   -- $ sha256sum lightning-terminal-linux-amd64-v0.14.0-alpha.tar.gz
   -- $ cat manifest-v0.14.0-alpha.txt
-  -- check for a match
-- [ ] Excctract and move binaries
+- [ ] comprobar si hay una coincidencia
+- [ ] Extraer y mover los binarios
   -- $ tar -xvzf lightning-terminal-linux-amd64-v0.14.0-alpha.tar.gz
   -- $ sudo mv lightning-terminal-linux-amd64-v0.14.0-alpha/* /usr/local/bin/
-- [ ] Check that litd was installed
+- [ ] Comprobar que litd se instaló
   -- $ which litd
-- [ ] Create a lit.conf file
-  -- $ mkdir `/.lit
+- [ ] Crear un archivo lit.conf
+  -- $ mkdir ~/.lit
   -- $ vim ~/.lit/lit.conf
-  -- Have a look at the example lit.conf file at /example-files/lit.conf
-- [ ] Create an LND wallet a password and a wallet_password file 
-  -- first ensure that the below two lines are commented out of the lit.conf file
+- [ ] Echar un vistazo al archivo de ejemplo lit.conf en /example-files/lit.conf
+- [ ] Crear una billetera LND, una contraseña y un archivo wallet_password
+- [ ] Primero asegúrese de que las siguientes dos líneas estén comentadas en el archivo lit.conf
   -- lnd.wallet-unlock-password-file=/home/ubuntu/.lnd/wallet_password
   -- lnd.wallet-unlock-allow-create=true
   -- $ mkdir ~/.lnd
   -- $ touch ~/.lnd/wallet_password
   -- $ openssl rand -hex 21 > ~/.lnd/wallet_password
-  -- Run litd via $ litd 
-  -- Via a seperate process create an LND wallet 
-  -- $ lncli create 
-  --- Follow prompts and use the generated password as the wallet password 
-  --  Generate a new seed
-  -- Skip encrypting the seed phrase (Or encrypt it if that makes sense for your usecase!) 
-  -- Properly backup your seed phrase! VERY IMPORTANT!!!! 
-- [ ] Uncomment the below two lines in the lit.conf file
+- [ ] Ejecute litd
+  -- $ litd
+- [ ] A través de un proceso separado -una nueva terminal-, cree una billetera LND
+  -- $ lncli create
+--- Siga las indicaciones y use la contraseña generada como contraseña de la billetera
+- [ ] Genere una nueva semilla
+- [ ] ¡Omita el cifrado de la frase semilla (o encríptela si corresponde para su caso de uso!)
+- [ ] ¡Haga una copia de seguridad adecuada de su frase semilla! ¡¡¡MUY IMPORTANTE!!!!
+- [ ] Descomente las siguientes dos líneas en el archivo lit.conf
   -- lnd.wallet-unlock-password-file=/home/ubuntu/.lnd/wallet_password
   -- lnd.wallet-unlock-allow-create=true
-- [ ] Set litd to start on reboot via systemd 
-  -- See the example litd.service example file /example-files/litd.service
-  -- Create file at /etc/systemd/system/ 
+- [ ] Configurar litd para que se inicie al reiniciar a través de systemd
+- [ ] Ver el archivo de ejemplo litd.service /example-files/litd.service
+- [ ] Crear archivo en /etc/systemd/system/
   -- $ sudo touch /etc/systemd/system/litd.service
-- [ ] Enble and run the service
+- [ ] Habilitar y ejecutar el servicio
   -- $ sudo systemctl daemon-reload
   -- $ sudo systemctl start litd
-- [ ] Check that litd is running as expected
+- [ ] Comprobar que litd se esté ejecutando como se espera
   -- $ sudo systemctl status litd
   -- $ sudo lsof -n -P -i | grep LISTEN

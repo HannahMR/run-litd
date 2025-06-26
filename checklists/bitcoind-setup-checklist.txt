@@ -1,39 +1,40 @@
-Bitcoind Setup Checklist 
+Lista de Verificación de Compilación e Instalación de Bitcoind desde código fuente
 
-This file assumes that a user is logged as the new ubuntu user and is running these commands from their home directory.
+Este archivo asume que un usuario ha iniciado sesión como el nuevo usuario de Ubuntu y está ejecutando estos comandos desde su directorio de inicio.
 
-- [ ] Make sure the server is up to date
-- [ ] $ sudo apt update && sudo apt upgrade -y 
-- [ ] Install bitcoin core dependancies
+- [ ] Asegurarse de que el servidor esté actualizado
+  -- $ sudo apt update && sudo apt upgrade -y
+- [ ] Instalar las dependencias de Bitcoin Core
   -- $ sudo apt install git build-essential libtool autotools-dev automake pkg-config libssl-dev libevent-dev bsdmainutils libboost-system-dev libboost-filesystem-dev libboost-chrono-dev libboost-program-options-dev libboost-test-dev libboost-thread-dev libminiupnpc-dev libzmq3-dev
-- [ ] Clone the Bitcoin core repo
-  -- $ git clone -b v27.2 https://github.com/bitcoin/bitcoin.git
-- [ ] Build bitcoind (patience is required here)
+- [ ] Clonar el repositorio de Bitcoin Core
+  -- $ git clone -b v29.0 https://github.com/bitcoin/bitcoin.git
+- [ ] Compilar bitcoind (se requiere paciencia aquí)
   -- $ cd bitcoin/
   -- $ ./autogen.sh
   -- $ ./configure CXXFLAGS="--param ggc-min-expand=1 --param ggc-min-heapsize=32768" --enable-cxx --with-zmq --without-gui --disable-shared --with-pic --disable-tests --disable-bench --enable-upnp-default --disable-wallet
-  -- $ make -j "$(($(nproc)+1))"
+  -- $ make -j "(((nproc)+1))"
   -- $ sudo make install
-  - [ ] Verify that bitcoind is installed
-    -- $ which bitcoind
-- [ ] Download and use the Bitcoin Core auth script to generate credentials
+- [ ] Verificar que bitcoind esté instalado
+  -- $ which bitcoind
+- [ ] Descargar y usar el script de autenticación de Bitcoin Core para generar credenciales
   -- $ wget https://raw.githubusercontent.com/bitcoin/bitcoin/master/share/rpcauth/rpcauth.py
   -- $ python3 ./rpcauth.py bitcoinrpc
-  -- Save this data as the auth will be used in the config file and the password will be used for the litd connection
-- [ ] Create and edit the config file
-  -- $ mkdir `/.bitcoin
-  -- $ vim ~/.bitcoin/bitcoin.conf
-  -- Take a look at the example config file /example-files/bitcoin.conf
-- [ ] If intending to run a pruned node, add the below line to the bitcoin.conf file
-  -- prune=80000 # Prune to 80GB
-- [ ] Set bitcoind to start on reboot via systemd
-  -- See the example bitcoind.service example file /example-files/bitcoind.service 
-  -- Create file at /etc/systemd/system/ 
+- [ ] Guardar estos datos ya que la autenticación se utilizará en el archivo de configuración y la contraseña se utilizará para la conexión litd
+- [ ] Crear y editar el archivo de configuración
+  -- $ mkdir ~/.bitcoin
+  -- $ nano ~/.bitcoin/bitcoin.conf
+- [ ] Echar un vistazo al archivo de configuración de ejemplo /example-files/bitcoin.conf
+- [ ] Si se pretende ejecutar un nodo podado, agregar la siguiente línea al archivo bitcoin.conf
+  -- prune=50000 # Podar a 50GB
+- [ ] Configurar bitcoind para que se inicie automáticamente al reiniciar a través de systemd
+- [ ] Ver el archivo de ejemplo bitcoind.service /example-files/bitcoind.service
+- [ ] Crear el archivo en /etc/systemd/system/
   -- $ sudo touch /etc/systemd/system/bitcoind.service
-- [ ] Enble and run the service
+- [ ] Habilitar y ejecutar el servicio
   -- $ sudo systemctl enable bitcoind
   -- $ sudo systemctl daemon-reload
   -- $ sudo systemctl start bitcoind
-- [ ] Check that bitcoind is running as expected
+- [ ] Comprobar que bitcoind se esté ejecutando como se espera
   -- $ sudo systemctl status bitcoind
   -- $ sudo lsof -n -P -i | grep LISTEN
+  -- $ bitcoin-cli getblockchaininfo

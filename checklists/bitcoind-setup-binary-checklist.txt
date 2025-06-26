@@ -1,44 +1,45 @@
-Bitcoind Setup Checklist 
+Lista de Verificación de Instalación del Binario de Bitcoind 
 
-This file assumes that a user is logged as the new ubuntu user and is running these commands from their home directory.
+Este archivo asume que un usuario ha iniciado sesión como el nuevo usuario de Ubuntu y está ejecutando estos comandos desde su directorio de inicio (/home/ubuntu/)
 
-- [ ] Make sure the server is up to date
-- [ ] $ sudo apt update && sudo apt upgrade -y 
-- [ ] Download Bitcoin Core Binary and Related Files
-  -- $ wget -q https://bitcoincore.org/bin/bitcoin-core-27.2/bitcoin-27.2-x86_64-linux-gnu.tar.gz
-  -- $ wget -q https://bitcoincore.org/bin/bitcoin-core-27.2/SHA256SUMS
-  -- $ wget -q https://bitcoincore.org/bin/bitcoin-core-27.2/SHA256SUMS.asc
-- [ ] Verify SHA256 Checksum
+- [ ] Asegurarse de que el servidor esté actualizado
+  -- $ sudo apt update && sudo apt upgrade -y
+- [ ] Descargar el Binario de Bitcoin Core y Archivos Relacionados
+  -- $ wget -q https://bitcoincore.org/bin/bitcoin-core-29.0/bitcoin-29.0-x86_64-linux-gnu.tar.gz
+  -- $ wget -q https://bitcoincore.org/bin/bitcoin-core-29.0/SHA256SUMS
+  -- $ wget -q https://bitcoincore.org/bin/bitcoin-core-29.0/SHA256SUMS.asc
+- [ ] Verificar la Suma de Comprobación SHA256
   -- $ sha256sum --ignore-missing --check SHA256SUMS
-- [ ] Import Bitcoin Core Signing Keys and Verify Signature
+- [ ] Importar las Claves de Firma de Bitcoin Core y Verificar la Firma
   -- $ git clone https://github.com/bitcoin-core/guix.sigs
   -- $ gpg --import guix.sigs/builder-keys/*
   -- $ gpg --verify SHA256SUMS.asc SHA256SUMS
-  -- Ensure the signature verification is successful
-- [ ] Extract and Install Bitcoin Core Binary
-  -- $ tar -xzf bitcoin-27.2-x86_64-linux-gnu.tar.gz
-  -- $ sudo install -m 0755 -o root -g root -t /usr/local/bin bitcoin-27.2/bin/*
-  -- $ rm -rf bitcoin-27.2 bitcoin-27.2-x86_64-linux-gnu.tar.gz SHA256SUMS SHA256SUMS.asc
-- [ ] Verify that bitcoind is installed
-    -- $ which bitcoind
-- [ ] Download and use the Bitcoin Core auth script to generate credentials
+- [ ] Asegurarse de que la verificación de la firma sea exitosa
+- [ ] Extraer e Instalar el Binario de Bitcoin Core
+  -- $ tar -xzf bitcoin-29.0-x86_64-linux-gnu.tar.gz
+  -- $ sudo install -m 0755 -o root -g root -t /usr/local/bin bitcoin-29.0/bin/*
+  -- $ rm -rf bitcoin-29.0 bitcoin-29.0-x86_64-linux-gnu.tar.gz SHA256SUMS SHA256SUMS.asc
+- [ ] Verificar que bitcoind esté instalado
+  -- $ which bitcoind
+- [ ] Descargar y usar el script de autenticación de Bitcoin Core para generar credenciales
   -- $ wget https://raw.githubusercontent.com/bitcoin/bitcoin/master/share/rpcauth/rpcauth.py
   -- $ python3 ./rpcauth.py bitcoinrpc
-  -- Save this data as the auth will be used in the config file and the password will be used for the litd connection
-- [ ] Create and edit the config file
-  -- $ mkdir `/.bitcoin
-  -- $ vim ~/.bitcoin/bitcoin.conf
-  -- Take a look at the example config file /example-files/bitcoin.conf
-- [ ] If intending to run a pruned node, add the below line to the bitcoin.conf file
-  -- prune=80000 # Prune to 80GB
-- [ ] Set bitcoind to start on reboot via systemd
-  -- See the example bitcoind.service example file /example-files/bitcoind.service 
-  -- Create file at /etc/systemd/system/ 
+- [ ] Guardar estos datos ya que la autenticación se utilizará en el archivo de configuración y la contraseña se utilizará para la conexión litd
+- [ ] Crear y editar el archivo de configuración
+  -- $ mkdir ~/.bitcoin
+  -- $ nano ~/.bitcoin/bitcoin.conf
+- [ ] Dar un vistazo al archivo de configuración de ejemplo /example-files/bitcoin.conf
+- [ ] Si se pretende ejecutar un nodo podado, agregar la siguiente línea al archivo bitcoin.conf
+  -- prune=50000 # Podar a 50GB
+- [ ] Configurar bitcoind para que arranque automáticamente al reiniciar a través de systemd
+- [ ] Ver el archivo de ejemplo bitcoind.service /example-files/bitcoind.service
+- [ ] Crear el archivo en /etc/systemd/system/
   -- $ sudo touch /etc/systemd/system/bitcoind.service
-- [ ] Enble and run the service
+- [ ] Habilitar y ejecutar el servicio
   -- $ sudo systemctl enable bitcoind
   -- $ sudo systemctl daemon-reload
   -- $ sudo systemctl start bitcoind
-- [ ] Check that bitcoind is running as expected
+- [ ] Comprobar que bitcoind se esté ejecutando como se espera
   -- $ sudo systemctl status bitcoind
   -- $ sudo lsof -n -P -i | grep LISTEN
+  -- $ bitcoin-cli getblockchaininfo

@@ -1,11 +1,11 @@
 #!/bin/bash
 
-# Exit on error
+# Salir en caso de error
 set -e
 
-# Check for root privileges
+# Verificar privilegios de root
 if [ "$EUID" -ne 0 ]; then
-  echo "Please run as root."
+  echo "Por favor, ejecute como root."
   exit 1
 fi
 
@@ -14,83 +14,84 @@ NEW_USER="ubuntu"
 SSH_DIR="/home/$NEW_USER/.ssh"
 AUTHORIZED_KEYS="$SSH_DIR/authorized_keys"
 
-# 1. Add a new user
+# 1. Agregar un nuevo usuario
 if id "$NEW_USER" &>/dev/null; then
-  echo "User $NEW_USER already exists."
+  echo "El usuario $NEW_USER ya existe."
 else
-  echo "Creating user $NEW_USER..."
+  echo "Creando usuario $NEW_USER..."
   adduser --gecos "" $NEW_USER
   adduser --gecos "" $NEW_USER && passwd $NEW_USER
   echo "$NEW_USER ALL=(ALL:ALL) ALL" >> /etc/sudoers
-  echo "User $NEW_USER added and given sudo access."
+  echo "Usuario $NEW_USER agregado y se le otorgó acceso sudo."
 fi
 
-# 2. Set up SSH authorized keys
+# 2. Configurar las claves autorizadas de SSH
 if [ ! -d "$SSH_DIR" ]; then
-  echo "Setting up .ssh directory for $NEW_USER..."
+  echo "Configurando el directorio .ssh para $NEW_USER..."
   mkdir -p $SSH_DIR
   chmod 700 $SSH_DIR
   chown -R $NEW_USER:$NEW_USER $SSH_DIR
 else
-  echo ".ssh directory for $NEW_USER already exists."
+  echo "El directorio .ssh para $NEW_USER ya existe."
 fi
 
 if [ ! -f "$AUTHORIZED_KEYS" ]; then
-  echo "Creating authorized_keys file for $NEW_USER..."
+  echo "Creando el archivo authorized_keys para $NEW_USER..."
   touch $AUTHORIZED_KEYS
   chmod 600 $AUTHORIZED_KEYS
   chown $NEW_USER:$NEW_USER $AUTHORIZED_KEYS
 else
-  echo "authorized_keys file for $NEW_USER already exists. Checking for duplicate keys."
+  echo "El archivo authorized_keys para $NEW_USER ya existe. Verificando claves duplicadas."
 fi
 
-# Prompt for SSH keys
-echo "Please paste the SSH public keys you want to add. Each key should be on a new line."
-echo "When you are finished, press Enter, then Ctrl+D to save and continue."
+# Solicitar claves SSH
+echo "Por favor, pegue las claves públicas SSH que desea agregar. Cada clave debe estar en una nueva línea."
+echo "Cuando haya terminado, presione Enter, luego Ctrl+D para guardar y continuar."
 USER_KEYS=$(cat)
 
-# Add keys provided by the user
+# Agregar claves proporcionadas por el usuario
 while IFS= read -r KEY; do
   if ! grep -qxF "$KEY" $AUTHORIZED_KEYS; then
     echo "$KEY" >> $AUTHORIZED_KEYS
-    echo "Added key to authorized_keys."
+    echo "Clave agregada a authorized_keys."
   else
-    echo "Key already exists in authorized_keys. Skipping."
+    echo "La clave ya existe en authorized_keys. Omitiendo."
   fi
 done <<< "$USER_KEYS"
 
-echo "SSH keys verified for $NEW_USER."
+echo "Claves SSH verificadas para $NEW_USER."
 
-# 3. Disable root login and password authentication
+# 3. Deshabilitar el inicio de sesión de root y la autenticación por contraseña
 SSHD_CONFIG="/etc/ssh/sshd_config"
 
 if grep -q "^PermitRootLogin yes" $SSHD_CONFIG; then
-  echo "Disabling root login..."
+  echo "Deshabilitando el inicio de sesión de root..."
   sed -i "s/^#\?PermitRootLogin.*/PermitRootLogin no/" $SSHD_CONFIG
 else
-  echo "Root login is already disabled."
+  echo "El inicio de sesión de root ya está deshabilitado."
 fi
 
 if grep -q "^#PasswordAuthentication yes" $SSHD_CONFIG || grep -q "^PasswordAuthentication yes" $SSHD_CONFIG; then
-  echo "Disabling password authentication..."
+  echo "Deshabilitando la autenticación por contraseña..."
   sed -i "s/^#PasswordAuthentication.*/PasswordAuthentication no/" $SSHD_CONFIG
   sed -i "s/^PasswordAuthentication.*/PasswordAuthentication no/" $SSHD_CONFIG
 else
-  echo "Password authentication is already disabled."
+  echo "La autenticación por contraseña ya está deshabilitada."
 fi
 
-# Restart SSH service
+# Reiniciar el servicio SSH
 if systemctl is-active --quiet ssh; then
-  echo "Warning: Restarting the SSH service may disconnect active sessions. Proceeding..."
+  echo "Advertencia: Reiniciar el servicio SSH puede desconectar las sesiones activas. Procediendo..."
   systemctl restart ssh
 else
-  echo "SSH service is not active. Starting it..."
+  echo "El servicio SSH no está activo. Iniciándolo..."
   systemctl start ssh
 fi
 
-echo "Setup completed successfully."
+echo "Configuración completada con éxito."
 
 cat <<"EOF"
+
 
              .------~---------~-----.
              | .------------------. |
@@ -112,5 +113,5 @@ cat <<"EOF"
       |                |          |  | 
       `------------------------------' 
 
-Your server is ready for the next script!
+Tu servidor está listo para el próximo script!
 EOF
