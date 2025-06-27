@@ -11,9 +11,9 @@ LIT_CONF_DIR="$USER_HOME/.lit"
 LIT_CONF_FILE="$LIT_CONF_DIR/lit.conf"
 LND_DIR="$USER_HOME/.lnd"
 WALLET_PASSWORD_FILE="$LND_DIR/wallet_password"
-GO_VERSION="1.21.0"
-NODE_VERSION="22.x"  # Ensure an even-numbered, stable release
-LITD_VERSION="v0.14.0-alpha"  # Version of litd to be installed
+GO_VERSION="1.23.9"
+NODE_VERSION="24.x"  # Ensure an even-numbered, stable release
+LITD_VERSION="v0.15.0-alpha"  # Version of litd to be installed
 SERVICE_FILE="/etc/systemd/system/litd.service"
 
 
@@ -72,6 +72,10 @@ else
             echo "[+] litd successfully built and installed!"
             # Ensure binary ownership
             sudo chown -R ${SUDO_USER:-$USER}:${SUDO_USER:-$USER} "$USER_HOME/go"
+            
+            # Ensure lightning-terminal directory ownership
+            echo "[+] Ensuring proper ownership of $USER_HOME/lightning-terminal..."
+            sudo chown -R ${SUDO_USER:-$USER}:${SUDO_USER:-$USER} "$USER_HOME/lightning-terminal"
         else
             echo "[-] Failed to build and install litd. Check for errors in the build process."
             exit 1

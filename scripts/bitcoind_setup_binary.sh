@@ -12,7 +12,7 @@ BITCOIN_CONF="$BITCOIN_DIR/bitcoin.conf"
 RPC_AUTH=""
 NETWORK=""
 SERVICE_FILE="/etc/systemd/system/bitcoind.service"
-BITCOIN_VERSION="27.2"  # Stick with the 27.x version
+BITCOIN_VERSION="29.0"  
 BITCOIN_TARBALL="bitcoin-${BITCOIN_VERSION}-x86_64-linux-gnu.tar.gz"
 BITCOIN_URL="https://bitcoincore.org/bin/bitcoin-core-${BITCOIN_VERSION}/${BITCOIN_TARBALL}"
 SHA256SUMS_URL="https://bitcoincore.org/bin/bitcoin-core-${BITCOIN_VERSION}/SHA256SUMS"
@@ -151,8 +151,8 @@ mkdir -p $BITCOIN_DIR
 sudo chown -R ${SUDO_USER:-$USER}:${SUDO_USER:-$USER} $BITCOIN_DIR
 cat <<EOF > $BITCOIN_CONF
 # Set the best block hash here:
-# For v27.2 on Signet and good hash to try is... 
-# 00000131de56604f752c0b072f468a2904e5d807e7ee79bd32a5be00bef17b2e
+# For v29.0 on Signet and good hash to try is... 
+# 000000432adc32a0e79b9d5cf14bd32c7d37df2b96127c963cb20c69830464f4
 #assumevalid=
 
 # Run as a daemon mode without an interactive shell

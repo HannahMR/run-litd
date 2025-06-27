@@ -11,9 +11,6 @@ LIT_CONF_DIR="$USER_HOME/.lit"
 LIT_CONF_FILE="$LIT_CONF_DIR/lit.conf"
 LND_DIR="$USER_HOME/.lnd"
 WALLET_PASSWORD_FILE="$LND_DIR/wallet_password"
-GO_VERSION="1.21.0"
-NODE_VERSION="22.x"  # Ensure an even-numbered, stable release
-LITD_VERSION="v0.14.0-alpha"  # Version of litd to be installed
 SERVICE_FILE="/etc/systemd/system/litd.service"
 
 # Uncomment wallet unlock settings in the configuration file

@@ -7,7 +7,7 @@ This file assumes that a user is logged as the new ubuntu user and is running th
 - [ ] Install bitcoin core dependancies
   -- $ sudo apt install git build-essential libtool autotools-dev automake pkg-config libssl-dev libevent-dev bsdmainutils libboost-system-dev libboost-filesystem-dev libboost-chrono-dev libboost-program-options-dev libboost-test-dev libboost-thread-dev libminiupnpc-dev libzmq3-dev
 - [ ] Clone the Bitcoin core repo
-  -- $ git clone -b v27.2 https://github.com/bitcoin/bitcoin.git
+  -- $ git clone -b v29.0 https://github.com/bitcoin/bitcoin.git
 - [ ] Build bitcoind (patience is required here)
   -- $ cd bitcoin/
   -- $ ./autogen.sh

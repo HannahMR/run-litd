@@ -5,9 +5,9 @@ This file assumes that a user is logged as the new ubuntu user and is running th
 - [ ] Make sure the server is up to date
 - [ ] $ sudo apt update && sudo apt upgrade -y 
 - [ ] Download Bitcoin Core Binary and Related Files
-  -- $ wget -q https://bitcoincore.org/bin/bitcoin-core-27.2/bitcoin-27.2-x86_64-linux-gnu.tar.gz
-  -- $ wget -q https://bitcoincore.org/bin/bitcoin-core-27.2/SHA256SUMS
-  -- $ wget -q https://bitcoincore.org/bin/bitcoin-core-27.2/SHA256SUMS.asc
+  -- $ wget -q https://bitcoincore.org/bin/bitcoin-core-29.0/bitcoin-29.0-x86_64-linux-gnu.tar.gz
+  -- $ wget -q https://bitcoincore.org/bin/bitcoin-core-29.0/SHA256SUMS
+  -- $ wget -q https://bitcoincore.org/bin/bitcoin-core-29.0/SHA256SUMS.asc
 - [ ] Verify SHA256 Checksum
   -- $ sha256sum --ignore-missing --check SHA256SUMS
 - [ ] Import Bitcoin Core Signing Keys and Verify Signature
@@ -16,9 +16,9 @@ This file assumes that a user is logged as the new ubuntu user and is running th
   -- $ gpg --verify SHA256SUMS.asc SHA256SUMS
   -- Ensure the signature verification is successful
 - [ ] Extract and Install Bitcoin Core Binary
-  -- $ tar -xzf bitcoin-27.2-x86_64-linux-gnu.tar.gz
-  -- $ sudo install -m 0755 -o root -g root -t /usr/local/bin bitcoin-27.2/bin/*
-  -- $ rm -rf bitcoin-27.2 bitcoin-27.2-x86_64-linux-gnu.tar.gz SHA256SUMS SHA256SUMS.asc
+  -- $ tar -xzf bitcoin-29.0-x86_64-linux-gnu.tar.gz
+  -- $ sudo install -m 0755 -o root -g root -t /usr/local/bin bitcoin-29.0/bin/*
+  -- $ rm -rf bitcoin-29.0 bitcoin-29.0-x86_64-linux-gnu.tar.gz SHA256SUMS SHA256SUMS.asc
 - [ ] Verify that bitcoind is installed
     -- $ which bitcoind
 - [ ] Download and use the Bitcoin Core auth script to generate credentials

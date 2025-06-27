@@ -7,6 +7,7 @@ set -e
 
 # Configuration
 USER_HOME=$(eval echo ~${SUDO_USER:-$USER})
+BITCOIN_VERSION="29.0" 
 BITCOIN_DIR="$USER_HOME/.bitcoin"
 BITCOIN_CONF="$BITCOIN_DIR/bitcoin.conf"
 RPC_AUTH=""
@@ -30,8 +31,8 @@ apt install -y git build-essential libtool autotools-dev automake pkg-config lib
 # Clone Bitcoin Core repository
 echo "[+] Checking for Bitcoin Core repository..."
 if [[ ! -d "$USER_HOME/bitcoin" ]]; then
-    echo "[+] Cloning Bitcoin Core repository using v27.2 into $USER_HOME..."
-    git clone -b v27.2 https://github.com/bitcoin/bitcoin.git "$USER_HOME/bitcoin"
+    echo "[+] Cloning Bitcoin Core repository using v$BITCOIN_VERSION into $USER_HOME..."
+    git clone -b v$BITCOIN_VERSION https://github.com/bitcoin/bitcoin.git "$USER_HOME/bitcoin"
     sudo chown -R ${SUDO_USER:-$USER}:${SUDO_USER:-$USER} "$USER_HOME/bitcoin"
 else
     echo "[!] Bitcoin repository already exists. Skipping clone."
@@ -106,8 +107,8 @@ mkdir -p $BITCOIN_DIR
 sudo chown -R ${SUDO_USER:-$USER}:${SUDO_USER:-$USER} $BITCOIN_DIR
 cat <<EOF > $BITCOIN_CONF
 # Set the best block hash here:
-# For v27.2 on Signet and good hash to try is... 
-# 00000131de56604f752c0b072f468a2904e5d807e7ee79bd32a5be00bef17b2e
+# For v29.0 on Signet and good hash to try is... 
+# 000000432adc32a0e79b9d5cf14bd32c7d37df2b96127c963cb20c69830464f4
 #assumevalid=
 
 # Run as a daemon mode without an interactive shell

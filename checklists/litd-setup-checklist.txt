@@ -2,9 +2,9 @@ Litd Setup Checklist
 
 - [ ] when compiling litd from source we will need both GoLang and Nodejs
 - [ ] Install a recent version of GoLang
-  -- $ wget https://golang.org/dl/go1.21.0.linux-amd64.tar.gz
-  -- $ sudo tar -xvf go1.21.0.linux-amd64.tar.gz
-  -- $ sudo mv go /usr/local && rm go1.21.0.linux-amd64.tar.gz
+  -- $ wget https://golang.org/dl/go1.23.9.linux-amd64.tar.gz
+  -- $ sudo tar -xvf go1.23.9.linux-amd64.tar.gz
+  -- $ sudo mv go /usr/local && rm go1.23.9.linux-amd64.tar.gz
   -- $ mkdir ~/go
 - [ ] Add Go path
   -- $ vim ~/.profile
@@ -17,7 +17,7 @@ Litd Setup Checklist
   -- $ go version
 - [ ] Install Nodejs
   -- $ sudo apt-get install -y curl
-  -- $ curl -fsSL https://deb.nodesource.com/setup_22.x -o nodesource_setup.sh
+  -- $ curl -fsSL https://deb.nodesource.com/setup_24.x -o nodesource_setup.sh
   -- $ sudo -E bash nodesource_setup.sh
   -- $ sudo apt-get install -y nodejs
 - [ ] Install Yarn
@@ -29,7 +29,7 @@ Litd Setup Checklist
 - [ ] Clone the lightning-terminal repo
    -- $ git clone https://github.com/lightninglabs/lightning-terminal.git
   -- $ cd lightning-terminal/ 
-  -- $ git checkout v0.13.6-alpha
+  -- $ git checkout v0.15.0-alpha
   -- $ make install
   -- $ make go-install-cli
 - [ ] Check that litd was installed

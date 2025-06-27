@@ -1,19 +1,19 @@
-Litd Binary Setup Checklist (v0.14.0-alpha)
+Litd Binary Setup Checklist (v0.15.0-alpha)
 
 - [ ] Download files
   -- $ gpg --keyserver hkps://keyserver.ubuntu.com --recv-keys F4FC70F07310028424EFC20A8E4256593F177720
-  -- $ wget https://github.com/lightninglabs/lightning-terminal/releases/download/v0.14.0-alpha/lightning-terminal-linux-amd64-v0.14.0-alpha.tar.gz
-  -- $ wget https://github.com/lightninglabs/lightning-terminal/releases/download/v0.14.0-alpha/manifest-guggero-v0.14.0-alpha.sig
-  -- $ wget https://github.com/lightninglabs/lightning-terminal/releases/download/v0.14.0-alpha/manifest-v0.14.0-alpha.txt
+  -- $ wget https://github.com/lightninglabs/lightning-terminal/releases/download/v0.15.0-alpha/lightning-terminal-linux-amd64-v0.15.0-alpha.tar.gz
+  -- $ wget https://github.com/lightninglabs/lightning-terminal/releases/download/v0.15.0-alpha/manifest-guggero-v0.15.0-alpha.sig
+  -- $ wget https://github.com/lightninglabs/lightning-terminal/releases/download/v0.15.0-alpha/manifest-v0.15.0-alpha.txt
 - [ ] Verifying signature
-  -- $ gpg --verify manifest-guggero-v0.14.0-alpha.sig manifest-v0.14.0-alpha.txt
+  -- $ gpg --verify manifest-guggero-v0.15.0-alpha.sig manifest-v0.15.0-alpha.txt
 - [ ] Check SHASUM
-  -- $ sha256sum lightning-terminal-linux-amd64-v0.14.0-alpha.tar.gz
-  -- $ cat manifest-v0.14.0-alpha.txt
+  -- $ sha256sum lightning-terminal-linux-amd64-v0.15.0-alpha.tar.gz
+  -- $ cat manifest-v0.15.0-alpha.txt
   -- check for a match
 - [ ] Excctract and move binaries
-  -- $ tar -xvzf lightning-terminal-linux-amd64-v0.14.0-alpha.tar.gz
-  -- $ sudo mv lightning-terminal-linux-amd64-v0.14.0-alpha/* /usr/local/bin/
+  -- $ tar -xvzf lightning-terminal-linux-amd64-v0.15.0-alpha.tar.gz
+  -- $ sudo mv lightning-terminal-linux-amd64-v0.15.0-alpha/* /usr/local/bin/
 - [ ] Check that litd was installed
   -- $ which litd
 - [ ] Create a lit.conf file
