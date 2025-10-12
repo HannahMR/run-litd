@@ -7,7 +7,7 @@ set -e
 
 # Configuration
 USER_HOME=$(eval echo ~${SUDO_USER:-$USER})
-BITCOIN_VERSION="29.0" 
+BITCOIN_VERSION="30.0" 
 BITCOIN_DIR="$USER_HOME/.bitcoin"
 BITCOIN_CONF="$BITCOIN_DIR/bitcoin.conf"
 RPC_AUTH=""

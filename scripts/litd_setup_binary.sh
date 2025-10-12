@@ -13,9 +13,9 @@ LND_DIR="$USER_HOME/.lnd"
 WALLET_PASSWORD_FILE="$LND_DIR/wallet_password"
 SERVICE_FILE="/etc/systemd/system/litd.service"
 
-LITD_VERSION="v0.15.0-alpha"  # Version of litd to be installed
+LITD_VERSION="v0.15.2-alpha"  # Version of litd to be installed
 BINARY_URL="https://github.com/lightninglabs/lightning-terminal/releases/download/$LITD_VERSION/lightning-terminal-linux-amd64-$LITD_VERSION.tar.gz"
-SIGNATURE_URL="https://github.com/lightninglabs/lightning-terminal/releases/download/$LITD_VERSION/manifest-guggero-$LITD_VERSION.sig"
+SIGNATURE_URL="https://github.com/lightninglabs/lightning-terminal/releases/download/$LITD_VERSION/manifest-ViktorT-11-$LITD_VERSION.sig"
 MANIFEST_URL="https://github.com/lightninglabs/lightning-terminal/releases/download/$LITD_VERSION/manifest-$LITD_VERSION.txt"
 KEY_ID="F4FC70F07310028424EFC20A8E4256593F177720"
 KEY_SERVER="hkps://keyserver.ubuntu.com"
