@@ -15,9 +15,9 @@ SERVICE_FILE="/etc/systemd/system/litd.service"
 
 LITD_VERSION="v0.15.2-alpha"  # Version of litd to be installed
 BINARY_URL="https://github.com/lightninglabs/lightning-terminal/releases/download/$LITD_VERSION/lightning-terminal-linux-amd64-$LITD_VERSION.tar.gz"
-SIGNATURE_URL="https://github.com/lightninglabs/lightning-terminal/releases/download/$LITD_VERSION/manifest-ViktorT-11-$LITD_VERSION.sig"
+SIGNATURE_URL="https://github.com/lightninglabs/lightning-terminal/releases/download/$LITD_VERSION/manifest-ellemouton-$LITD_VERSION.sig"
 MANIFEST_URL="https://github.com/lightninglabs/lightning-terminal/releases/download/$LITD_VERSION/manifest-$LITD_VERSION.txt"
-KEY_ID="F4FC70F07310028424EFC20A8E4256593F177720"
+KEY_ID="26984CB69EB8C4A26196F7A4D7D916376026F177"
 KEY_SERVER="hkps://keyserver.ubuntu.com"
 DOWNLOAD_DIR="/tmp/litd_release_verification"
 
@@ -34,8 +34,8 @@ else
     cd "$DOWNLOAD_DIR" || { echo "Failed to navigate to download directory."; exit 1; }
     echo "The current working directory is: $PWD"
 
-    # Import Oli's key
-    echo "Importing Oli's key..."
+    # Import Signing key
+    echo "Importing Signing key..."
     gpg --keyserver "$KEY_SERVER" --recv-keys "$KEY_ID" || { echo "Failed to import PGP key."; exit 1; }
 
     # Download litd binary
