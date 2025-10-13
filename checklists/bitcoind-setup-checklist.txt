@@ -5,23 +5,30 @@ This file assumes that a user is logged as the new ubuntu user and is running th
 - [ ] Make sure the server is up to date
 - [ ] $ sudo apt update && sudo apt upgrade -y 
 - [ ] Install bitcoin core dependancies
-  -- $ sudo apt install -y git build-essential cmake ninja-build libtool autotools-dev automake pkg-config libssl-dev libevent-dev libzmq3-dev libminiupnpc-dev libboost-system-dev libboost-filesystem-dev libboost-chrono-dev libcapnp-dev capnproto libboost-program-options-dev libboost-test-dev libboost-thread-dev python3
+  -- sudo apt install -y git build-essential cmake ninja-build libtool autotools-dev automake pkg-config libssl-dev libminiupnpc-dev libevent-dev libzmq3-dev libboost-system-dev libboost-filesystem-dev libboost-chrono-dev libboost-program-options-dev libboost-test-dev libboost-thread-dev libcapnp-dev capnproto python3
 - [ ] Clone the Bitcoin core repo
-  -- $ git clone -b v30.0 https://github.com/bitcoin/bitcoin.git
+  -- $ git clone -b v30.0 https://github.com/bitcoin/bitcoin.git # or 27.0, 28.0, 29.2, etc.
 - [ ] Build bitcoind (patience is required here)
-  -- $ cd bitcoin/
+  -- The below instctions apply to Core 28 or earlier. 
+  -- $ cd ~bitcoin/
   -- $ ./autogen.sh
   -- $ ./configure CXXFLAGS="--param ggc-min-expand=1 --param ggc-min-heapsize=32768" --enable-cxx --with-zmq --without-gui --disable-shared --with-pic --disable-tests --disable-bench --enable-upnp-default --disable-wallet
   -- $ make -j "$(($(nproc)+1))"
   -- $ sudo make install
+  -- The below instructions apply to Core 29 or greater
+  -- $ cd bitcoin/
+  -- $ rm -rf build
+  -- $ cmake -S . -B build -G Ninja -DCMAKE_BUILD_TYPE=Release -DBUILD_GUI=OFF -DENABLE_WALLET=OFF -DWITH_ZMQ=ON -DBUILD_TESTS=OFF -DBUILD_BENCH=OFF
+  -- $ cmake --build build -j"$(nproc)"
+  -- $ sudo cmake --install build  
   - [ ] Verify that bitcoind is installed
     -- $ which bitcoind
 - [ ] Download and use the Bitcoin Core auth script to generate credentials
-  -- $ wget https://raw.githubusercontent.com/bitcoin/bitcoin/master/share/rpcauth/rpcauth.py
+  -- $ wget https://raw.githubusercontent.com/bitcoin/bitcoin/{version}/share/rpcauth/rpcauth.py
   -- $ python3 ./rpcauth.py bitcoinrpc
   -- Save this data as the auth will be used in the config file and the password will be used for the litd connection
 - [ ] Create and edit the config file
-  -- $ mkdir `/.bitcoin
+  -- $ mkdir ~/.bitcoin
   -- $ vim ~/.bitcoin/bitcoin.conf
   -- Take a look at the example config file /example-files/bitcoin.conf
 - [ ] If intending to run a pruned node, add the below line to the bitcoin.conf file
@@ -31,8 +38,8 @@ This file assumes that a user is logged as the new ubuntu user and is running th
   -- Create file at /etc/systemd/system/ 
   -- $ sudo touch /etc/systemd/system/bitcoind.service
 - [ ] Enble and run the service
+  -- $ sudo systemctl daemon-reload  
   -- $ sudo systemctl enable bitcoind
-  -- $ sudo systemctl daemon-reload
   -- $ sudo systemctl start bitcoind
 - [ ] Check that bitcoind is running as expected
   -- $ sudo systemctl status bitcoind
