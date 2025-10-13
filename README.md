@@ -2,7 +2,7 @@
 
 Notes and helper scripts for setting up and running a Litd node.
 
-Important!: These examples and scripts are designed to help developers get set up quickly to begin testing and application development. Please do not trust these files on your production build.  
+Important!: These examples and scripts are designed to help developers get set up quickly to begin testing and application development. Please do appropriate testing for your production build.  
 
 You can view a demo video of these scripts [here](https://youtu.be/lopHP_nF0tE)
 
@@ -18,14 +18,14 @@ You can view a demo video of these scripts [here](https://youtu.be/lopHP_nF0tE)
 
 ## Instructions
 
-This guide contains checklists, example files, and helper scripts for getting a Litd node up and running on a ubuntu server. These scripts have been tested on Ubuntu 24.04. There are three major sections to the guide, server prep, bitcoind setup, and litd setup. In each of these sections you will find a description of what needs to happen, a check list to follow, links to example files, and, if you prefer, bash scripts that will run through the checklists for you! 
+This guide contains checklists, example files, and helper scripts for getting a Litd node up and running on a ubuntu server. These scripts have been tested on Ubuntu 24.04 LTS. There are three major sections to the guide, server prep, bitcoind setup, and litd setup. In each of these sections you will find a description of what needs to happen, a check list to follow, links to example files, and, if you prefer, bash scripts that will run through the checklists for you! 
 
 This repo takes inspiration from the [RUN LND](https://github.com/alexbosworth/run-lnd/) repo. There you can find more detailed information on configuring a Lightning node. 
 
-The current verions of these checklists and scripts installs...
+While these scripts should run fine when installing older version, the current state of these checklists and scripts installs...
 
-- bitcoind v29.0
-- litd v0.15.0-alpha
+- bitcoind v30.0
+- litd v0.15.2-alpha
 
 ## Server Requirements
 
@@ -64,7 +64,7 @@ The script should be run with sudo. Don't worry, repo's, files, etc. will be own
 
 ```$ sudo ./server_setup.sh```
 
-You'll like want to move the run-litd repo to the new ubuntu users home directory. 
+You'll likely want to move the run-litd repo to the new ubuntu users home directory. 
 
 ```$ sudo mv /root/run-litd/ /home/ubuntu/run-litd/```
 ```$ sudo mv chown -R ubuntu:ubuntu /home/ubuntu/run-litd/```
