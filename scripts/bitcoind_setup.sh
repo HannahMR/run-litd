@@ -24,9 +24,12 @@ fi
 # Update & Install dependencies
 echo "[+] Updating system and installing dependencies..."
 apt update && apt upgrade -y
-apt install -y git build-essential libtool autotools-dev automake pkg-config libssl-dev libevent-dev \
-    bsdmainutils libboost-system-dev libboost-filesystem-dev libboost-chrono-dev \
-    libboost-program-options-dev libboost-test-dev libboost-thread-dev libminiupnpc-dev libzmq3-dev python3
+apt install -y git build-essential cmake ninja-build \
+  libtool autotools-dev automake pkg-config libcapnp-dev capnproto \
+  libssl-dev libevent-dev libzmq3-dev libminiupnpc-dev \
+  libboost-system-dev libboost-filesystem-dev libboost-chrono-dev \
+  libboost-program-options-dev libboost-test-dev libboost-thread-dev \
+  python3
 
 # Clone Bitcoin Core repository
 echo "[+] Checking for Bitcoin Core repository..."
@@ -44,13 +47,28 @@ cd "$USER_HOME/bitcoin/"
 # Build Bitcoin Core from source
 if [[ ! -f "/usr/local/bin/bitcoind" ]]; then
     echo "[+] Building Bitcoin Core. This may take a while..."
-    ./autogen.sh
-    ./configure CXXFLAGS="--param ggc-min-expand=1 --param ggc-min-heapsize=32768" --enable-cxx --with-zmq --without-gui \
-        --disable-shared --with-pic --disable-tests --disable-bench --enable-upnp-default --disable-wallet
-    echo "[+] This is the tedious part..."
-    make -j "$(($(nproc)+1))"
-    echo "[+] Almost done!"
-    sudo make install
+    if [[ -f "./autogen.sh" ]]; then
+  # Old releases (<= v28.*)
+  ./autogen.sh
+  ./configure --with-zmq --without-gui --disable-wallet --disable-tests --disable-bench --enable-upnp-default
+  make -j"$(nproc)"
+  sudo make install
+else
+  # New releases (v29+ use CMake)
+  rm -rf build
+  mkdir -p build && cd build
+  cmake -G Ninja .. \
+  -DBUILD_GUI=OFF \
+  -DENABLE_WALLET=OFF \
+  -DWITH_ZMQ=ON \
+  -DBUILD_TESTS=OFF \
+  -DBUILD_BENCH=OFF
+
+  cmake --build . -j"$(nproc)"
+  sudo cmake --install .
+  cd ..
+fi
+
 else
     echo "[!] bitcoind is already installed. Skipping build."
 fi
@@ -60,7 +78,7 @@ cd "$USER_HOME"
 
 # Generate RPC password
 echo "[+] Generating RPC password for other services to connect to bitcoind..."
-wget -q https://raw.githubusercontent.com/bitcoin/bitcoin/master/share/rpcauth/rpcauth.py -O rpcauth.py
+wget -q "https://raw.githubusercontent.com/bitcoin/bitcoin/v${BITCOIN_VERSION}/share/rpcauth/rpcauth.py" -O rpcauth.py
 if [[ ! -f rpcauth.py ]]; then
     echo "[-] Failed to download RPC password generator. Exiting."
     exit 1

@@ -5,7 +5,7 @@ This file assumes that a user is logged as the new ubuntu user and is running th
 - [ ] Make sure the server is up to date
 - [ ] $ sudo apt update && sudo apt upgrade -y 
 - [ ] Install bitcoin core dependancies
-  -- $ sudo apt install git build-essential libtool autotools-dev automake pkg-config libssl-dev libevent-dev bsdmainutils libboost-system-dev libboost-filesystem-dev libboost-chrono-dev libboost-program-options-dev libboost-test-dev libboost-thread-dev libminiupnpc-dev libzmq3-dev
+  -- $ sudo apt install -y git build-essential cmake ninja-build libtool autotools-dev automake pkg-config libssl-dev libevent-dev libzmq3-dev libminiupnpc-dev libboost-system-dev libboost-filesystem-dev libboost-chrono-dev libcapnp-dev capnproto libboost-program-options-dev libboost-test-dev libboost-thread-dev python3
 - [ ] Clone the Bitcoin core repo
   -- $ git clone -b v30.0 https://github.com/bitcoin/bitcoin.git
 - [ ] Build bitcoind (patience is required here)
