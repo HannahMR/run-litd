@@ -7,7 +7,7 @@ This file assumes that a user is logged as the new ubuntu user and is running th
 - [ ] Install bitcoin core dependancies
   -- sudo apt install -y git build-essential cmake ninja-build libtool autotools-dev automake pkg-config libssl-dev libminiupnpc-dev libevent-dev libzmq3-dev libboost-system-dev libboost-filesystem-dev libboost-chrono-dev libboost-program-options-dev libboost-test-dev libboost-thread-dev libcapnp-dev capnproto python3
 - [ ] Clone the Bitcoin core repo
-  -- $ git clone -b v30.0 https://github.com/bitcoin/bitcoin.git # or 27.0, 28.0, 29.2, etc.
+  -- $ git clone -b v31.0 https://github.com/bitcoin/bitcoin.git # or 27.0, 28.0, 29.2, etc.
 - [ ] Build bitcoind (patience is required here)
   -- The below instctions apply to Core 28 or earlier. 
   -- $ cd ~bitcoin/

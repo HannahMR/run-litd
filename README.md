@@ -24,8 +24,8 @@ This repo takes inspiration from the [RUN LND](https://github.com/alexbosworth/r
 
 While these scripts should run fine when installing older version, the current state of these checklists and scripts installs...
 
-- bitcoind v30.0
-- litd v0.15.2-alpha
+- bitcoind v31.0
+- litd v0.16.1-alpha
 
 ## Server Requirements
 

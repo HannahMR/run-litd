@@ -13,7 +13,7 @@ LND_DIR="$USER_HOME/.lnd"
 WALLET_PASSWORD_FILE="$LND_DIR/wallet_password"
 GO_VERSION="1.23.9"
 NODE_VERSION="24.x"  # Ensure an even-numbered, stable release
-LITD_VERSION="v0.15.2-alpha"  # Version of litd to be installed
+LITD_VERSION="v0.16.1-alpha"  # Version of litd to be installed
 SERVICE_FILE="/etc/systemd/system/litd.service"
 
 
