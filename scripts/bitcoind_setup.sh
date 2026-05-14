@@ -7,7 +7,7 @@ set -e
 
 # Configuration
 USER_HOME=$(eval echo ~${SUDO_USER:-$USER})
-BITCOIN_VERSION="30.0" 
+BITCOIN_VERSION="31.0" 
 BITCOIN_DIR="$USER_HOME/.bitcoin"
 BITCOIN_CONF="$BITCOIN_DIR/bitcoin.conf"
 RPC_AUTH=""
@@ -125,8 +125,8 @@ mkdir -p $BITCOIN_DIR
 sudo chown -R ${SUDO_USER:-$USER}:${SUDO_USER:-$USER} $BITCOIN_DIR
 cat <<EOF > $BITCOIN_CONF
 # Set the best block hash here:
-# For v29.0 on Signet and good hash to try is... 
-# 000000432adc32a0e79b9d5cf14bd32c7d37df2b96127c963cb20c69830464f4
+# For v31.0 on Signet a good hash to try is...
+# 00000008414aab61092ef93f1aacc54cf9e9f16af29ddad493b908a01ff5c329
 #assumevalid=
 
 # Run as a daemon mode without an interactive shell
