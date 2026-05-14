@@ -12,7 +12,7 @@ BITCOIN_CONF="$BITCOIN_DIR/bitcoin.conf"
 RPC_AUTH=""
 NETWORK=""
 SERVICE_FILE="/etc/systemd/system/bitcoind.service"
-BITCOIN_VERSION="30.0"  
+BITCOIN_VERSION="31.0"  
 BITCOIN_TARBALL="bitcoin-${BITCOIN_VERSION}-x86_64-linux-gnu.tar.gz"
 BITCOIN_URL="https://bitcoincore.org/bin/bitcoin-core-${BITCOIN_VERSION}/${BITCOIN_TARBALL}"
 SHA256SUMS_URL="https://bitcoincore.org/bin/bitcoin-core-${BITCOIN_VERSION}/SHA256SUMS"
@@ -40,16 +40,6 @@ if [[ ! -f $BITCOIN_TARBALL || ! -f SHA256SUMS || ! -f SHA256SUMS.asc ]]; then
     echo "[-] Failed to download necessary files. Exiting."
     exit 1
 fi
-
-# Verify SHA256 checksum
-echo "[+] Verifying SHA256 checksum of the binary..."
-sha256sum --ignore-missing --check SHA256SUMS
-if [[ $? -ne 0 ]]; then
-    echo "[-] SHA256 checksum verification failed. Exiting."
-    exit 1
-fi
-echo "[+] SHA256 checksum verified successfully."
-
 
 # Verify SHA256 checksum
 echo "[+] Verifying SHA256 checksum of the binary..."
