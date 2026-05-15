@@ -54,17 +54,18 @@ else
     wget "$SIGNATURE_URL" || { echo "[-] Failed to download signature."; exit 1; }
 
     echo "[+] Verifying PGP signature..."
-    gpg --verify "$(basename "$SIGNATURE_URL")" "$(basename "$MANIFEST_URL")" 2>&1 | grep "$KEY_ID" > /dev/null
-    if [ $? -eq 0 ]; then
+    GPG_OUTPUT=$(gpg --verify "$(basename "$SIGNATURE_URL")" "$(basename "$MANIFEST_URL")" 2>&1 || true)
+    if echo "$GPG_OUTPUT" | grep -q "$KEY_ID"; then
         echo "[+] Signature verification successful."
     else
         echo "[-] Signature verification failed. Exiting."
+        echo "$GPG_OUTPUT"
         exit 1
     fi
 
     echo "[+] Verifying SHA256 checksum..."
-    grep "$(sha256sum "$(basename "$BINARY_URL")" | awk '{print $1}')" "$(basename "$MANIFEST_URL")" > /dev/null
-    if [ $? -eq 0 ]; then
+    BINARY_HASH=$(sha256sum "$(basename "$BINARY_URL")" | awk '{print $1}')
+    if grep -q "$BINARY_HASH" "$(basename "$MANIFEST_URL")"; then
         echo "[+] SHA256 verification successful."
     else
         echo "[-] SHA256 verification failed. Exiting."
