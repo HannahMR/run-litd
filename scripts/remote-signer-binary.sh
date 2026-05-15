@@ -33,7 +33,7 @@ apt-get install -y curl jq wget
 
 # Install LND from binary
 echo "[+] Checking if LND is already installed..."
-if [[ -f "/usr/local/bin/lnd" ]]; then
+if [[ -f "/usr/local/bin/lnd" && -f "/usr/local/bin/lncli" ]]; then
     echo "[+] LND is already installed. Skipping installation."
 else
     echo "[+] LND not found in /usr/local/bin. Proceeding with installation."
