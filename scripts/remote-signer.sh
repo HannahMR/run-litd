@@ -88,7 +88,7 @@ else
         echo "[+] Building LND... This may take a few minutes."
         export GOPATH=$USER_HOME/go
         export PATH=$USER_HOME/go/bin:/usr/local/go/bin:$PATH
-        if make install; then
+        if make install tags="walletrpc signrpc routerrpc chainrpc invoicesrpc"; then
             echo "[+] LND built and installed successfully."
             sudo chown -R ${SUDO_USER:-$USER}:${SUDO_USER:-$USER} "$USER_HOME/go"
             sudo chown -R ${SUDO_USER:-$USER}:${SUDO_USER:-$USER} "$USER_HOME/lnd"
