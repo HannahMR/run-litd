@@ -347,8 +347,11 @@ else
         --macaroonpath="$MACAROON_PATH" \
         --tlscertpath="$LND_DIR/tls.cert" \
         bakemacaroon \
-        signer:generate-key signer:sign-message signer:signoutputraw \
-        walletkit:derivekey walletkit:deriveNextKey walletkit:signpsbt \
+        signer:generate signer:read signer:write \
+        uri:/walletrpc.WalletKit/DeriveNextKey \
+        uri:/walletrpc.WalletKit/DeriveKey \
+        uri:/walletrpc.WalletKit/SignPsbt \
+        uri:/walletrpc.WalletKit/FinalizePsbt \
         --save_to "$SIGNER_MACAROON"
     chown ${SUDO_USER:-$USER}:${SUDO_USER:-$USER} "$SIGNER_MACAROON"
     echo "[+] Signing macaroon saved to $SIGNER_MACAROON"
