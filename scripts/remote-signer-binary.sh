@@ -313,6 +313,23 @@ else
     done
     echo "[+] Wallet unlocked."
 
+    # Wait for gRPC server to be fully ready
+    echo "[+] Waiting for LND gRPC to be ready..."
+    ELAPSED=0
+    while ! sudo -u ${SUDO_USER:-$USER} /usr/local/bin/lncli \
+            --network="$NETWORK" \
+            --macaroonpath="$MACAROON_PATH" \
+            --tlscertpath="$LND_DIR/tls.cert" \
+            getinfo > /dev/null 2>&1; do
+        sleep 2
+        ELAPSED=$((ELAPSED + 2))
+        if [[ $ELAPSED -ge $TIMEOUT ]]; then
+            echo "[-] Timed out waiting for LND gRPC. Exiting."
+            exit 1
+        fi
+    done
+    echo "[+] LND gRPC is ready."
+
     # Export xpub
     echo "[+] Exporting account xpub..."
     sudo -u ${SUDO_USER:-$USER} /usr/local/bin/lncli \
