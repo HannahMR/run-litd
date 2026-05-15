@@ -23,8 +23,8 @@ fi
 
 # Update & Install dependencies
 echo "[+] Updating system and installing dependencies..."
-apt update && apt upgrade -y
-apt install -y git build-essential curl jq
+apt-get update && apt-get upgrade -y
+apt-get install -y git build-essential curl jq
 
 # Install Go
 echo "[+] Checking if Go $GO_VERSION is installed..."
@@ -32,7 +32,7 @@ if command -v go &> /dev/null && [[ $(go version | awk '{print $3}' | cut -c3-) 
     echo "[+] Go $GO_VERSION is already installed. Skipping installation."
 else
     echo "[+] Installing Go $GO_VERSION..."
-    wget -q "https://golang.org/dl/go$GO_VERSION.linux-amd64.tar.gz" -O go.tar.gz
+    wget "https://golang.org/dl/go$GO_VERSION.linux-amd64.tar.gz" -O go.tar.gz
     if [[ -f go.tar.gz ]]; then
         sudo tar -C /usr/local -xzf go.tar.gz
         rm go.tar.gz
