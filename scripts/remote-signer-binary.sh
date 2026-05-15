@@ -15,7 +15,7 @@ LND_VERSION="v0.20.1-beta"
 BINARY_URL="https://github.com/lightningnetwork/lnd/releases/download/$LND_VERSION/lnd-linux-amd64-$LND_VERSION.tar.gz"
 MANIFEST_URL="https://github.com/lightningnetwork/lnd/releases/download/$LND_VERSION/manifest-$LND_VERSION.txt"
 SIGNATURE_URL="https://github.com/lightningnetwork/lnd/releases/download/$LND_VERSION/manifest-roasbeef-$LND_VERSION.sig"
-KEY_ID="E4D85299674B2D31FAA1892E372CBD7633C61696"
+KEY_ID="296212681AADF05656A2CDEE90525F7DEEE0AD86"
 KEY_SERVER="hkps://keyserver.ubuntu.com"
 DOWNLOAD_DIR="/tmp/lnd_release_verification"
 
