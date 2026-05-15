@@ -24,7 +24,7 @@ fi
 # Update & Install dependencies
 echo "[+] Updating system and installing dependencies..."
 apt update && apt upgrade -y
-apt install -y git build-essential
+apt install -y git build-essential curl jq
 
 # Install Go
 echo "[+] Checking if Go $GO_VERSION is installed..."
@@ -120,6 +120,7 @@ else
     echo "[+] Generating wallet password..."
     openssl rand -hex 21 > $WALLET_PASSWORD_FILE
     sudo chown ${SUDO_USER:-$USER}:${SUDO_USER:-$USER} $WALLET_PASSWORD_FILE
+    chmod 600 $WALLET_PASSWORD_FILE
     echo "[+] Wallet password saved to $WALLET_PASSWORD_FILE."
 fi
 
@@ -228,26 +229,161 @@ else
     echo "[!] lnd service is already running."
 fi
 
+# Detect network from config
+if grep -q "bitcoin.signet=1" "$LND_CONF_FILE" 2>/dev/null; then
+    NETWORK="signet"
+else
+    NETWORK="mainnet"
+fi
+
+MACAROON_PATH="$LND_DIR/data/chain/bitcoin/$NETWORK/admin.macaroon"
+LNCLI="$USER_HOME/go/bin/lncli"
+SEED_FILE="$LND_DIR/seed_phrase.txt"
+XPUB_FILE="$LND_DIR/accounts.json"
+SIGNER_MACAROON="$LND_DIR/signer.macaroon"
+TIMEOUT=180
+
+if [[ -f "$MACAROON_PATH" ]]; then
+    echo "[!] Wallet already initialized. Skipping wallet setup."
+else
+    # Wait for TLS cert
+    echo "[+] Waiting for LND to generate TLS certificate..."
+    ELAPSED=0
+    while [[ ! -f "$LND_DIR/tls.cert" ]]; do
+        sleep 2
+        ELAPSED=$((ELAPSED + 2))
+        if [[ $ELAPSED -ge $TIMEOUT ]]; then
+            echo "[-] Timed out waiting for TLS certificate. Exiting."
+            exit 1
+        fi
+    done
+    echo "[+] TLS certificate ready."
+
+    # Wait for REST API
+    echo "[+] Waiting for LND REST API..."
+    ELAPSED=0
+    while ! curl -sf --cacert "$LND_DIR/tls.cert" https://localhost:8080/v1/state > /dev/null 2>&1; do
+        sleep 2
+        ELAPSED=$((ELAPSED + 2))
+        if [[ $ELAPSED -ge $TIMEOUT ]]; then
+            echo "[-] Timed out waiting for LND REST API. Exiting."
+            exit 1
+        fi
+    done
+    echo "[+] LND REST API is ready."
+
+    # Generate seed
+    echo "[+] Generating wallet seed..."
+    SEED_JSON=$(curl -sf --cacert "$LND_DIR/tls.cert" https://localhost:8080/v1/genseed)
+    if [[ -z "$SEED_JSON" ]]; then
+        echo "[-] Failed to generate seed. Exiting."
+        exit 1
+    fi
+
+    MNEMONIC=$(echo "$SEED_JSON" | jq -r '.cipher_seed_mnemonic | join(" ")')
+    MNEMONIC_ARRAY=$(echo "$SEED_JSON" | jq -c '.cipher_seed_mnemonic')
+
+    # Save seed to file (chmod 600 - readable only by owner)
+    echo "$MNEMONIC" > "$SEED_FILE"
+    chown ${SUDO_USER:-$USER}:${SUDO_USER:-$USER} "$SEED_FILE"
+    chmod 600 "$SEED_FILE"
+
+    echo ""
+    echo "============================================================"
+    echo "  !! WALLET SEED PHRASE - BACK THIS UP IMMEDIATELY !!      "
+    echo "  This is your ONLY recovery option if this node is lost.  "
+    echo "============================================================"
+    echo "$MNEMONIC"
+    echo "============================================================"
+    echo "  Saved to: $SEED_FILE  (chmod 600)"
+    echo "  Once backed up, delete it:  shred -u $SEED_FILE"
+    echo "============================================================"
+    echo ""
+
+    # Initialize wallet
+    echo "[+] Initializing wallet..."
+    WALLET_PASSWORD_B64=$(tr -d '\n' < "$WALLET_PASSWORD_FILE" | base64 -w 0)
+    INIT_RESPONSE=$(curl -sf --cacert "$LND_DIR/tls.cert" \
+        -X POST https://localhost:8080/v1/initwallet \
+        -H 'Content-Type: application/json' \
+        -d "{\"wallet_password\": \"$WALLET_PASSWORD_B64\", \"cipher_seed_mnemonic\": $MNEMONIC_ARRAY}")
+
+    if [[ -z "$INIT_RESPONSE" ]]; then
+        echo "[-] No response from initwallet endpoint. Exiting."
+        exit 1
+    fi
+    if echo "$INIT_RESPONSE" | jq -e '.code' > /dev/null 2>&1; then
+        echo "[-] Failed to initialize wallet: $(echo "$INIT_RESPONSE" | jq -r '.message')"
+        exit 1
+    fi
+    echo "[+] Wallet initialized, waiting for unlock..."
+
+    # Wait for admin macaroon (signals wallet is fully unlocked)
+    ELAPSED=0
+    while [[ ! -f "$MACAROON_PATH" ]]; do
+        sleep 2
+        ELAPSED=$((ELAPSED + 2))
+        if [[ $ELAPSED -ge $TIMEOUT ]]; then
+            echo "[-] Timed out waiting for wallet to unlock. Exiting."
+            exit 1
+        fi
+    done
+    echo "[+] Wallet unlocked."
+
+    # Wait for gRPC server to be fully ready
+    echo "[+] Waiting for LND gRPC to be ready..."
+    ELAPSED=0
+    while ! sudo -u ${SUDO_USER:-$USER} "$LNCLI" \
+            --network="$NETWORK" \
+            --macaroonpath="$MACAROON_PATH" \
+            --tlscertpath="$LND_DIR/tls.cert" \
+            getinfo > /dev/null 2>&1; do
+        sleep 2
+        ELAPSED=$((ELAPSED + 2))
+        if [[ $ELAPSED -ge $TIMEOUT ]]; then
+            echo "[-] Timed out waiting for LND gRPC. Exiting."
+            exit 1
+        fi
+    done
+    echo "[+] LND gRPC is ready."
+
+    # Export xpub
+    echo "[+] Exporting account xpub..."
+    sudo -u ${SUDO_USER:-$USER} "$LNCLI" \
+        --network="$NETWORK" \
+        --macaroonpath="$MACAROON_PATH" \
+        --tlscertpath="$LND_DIR/tls.cert" \
+        wallet accounts list > "$XPUB_FILE"
+    chown ${SUDO_USER:-$USER}:${SUDO_USER:-$USER} "$XPUB_FILE"
+    echo "[+] Account xpub saved to $XPUB_FILE"
+
+    # Bake signing macaroon for the watch-only node
+    echo "[+] Baking signing macaroon for watch-only node..."
+    sudo -u ${SUDO_USER:-$USER} "$LNCLI" \
+        --network="$NETWORK" \
+        --macaroonpath="$MACAROON_PATH" \
+        --tlscertpath="$LND_DIR/tls.cert" \
+        bakemacaroon \
+        signer:generate signer:read signer:write \
+        uri:/walletrpc.WalletKit/DeriveNextKey \
+        uri:/walletrpc.WalletKit/DeriveKey \
+        uri:/walletrpc.WalletKit/SignPsbt \
+        uri:/walletrpc.WalletKit/FinalizePsbt \
+        --save_to "$SIGNER_MACAROON"
+    chown ${SUDO_USER:-$USER}:${SUDO_USER:-$USER} "$SIGNER_MACAROON"
+    echo "[+] Signing macaroon saved to $SIGNER_MACAROON"
+fi
+
 cat <<"EOF"
 
-[+] LND Remote Signer configured and started!
+[+] LND Remote Signer setup complete!
 
-Next steps:
+Copy these files to your watch-only node:
+  - TLS certificate:   ~/.lnd/tls.cert
+  - Signing macaroon:  ~/.lnd/signer.macaroon
+  - Account xpub:      ~/.lnd/accounts.json
 
-  1. Create your wallet (run as the non-root user):
-       lncli --network=[mainnet|signet] create
-     Use the password at: ~/.lnd/wallet_password
-     BACK UP YOUR SEED PHRASE SECURELY - IT CANNOT BE RECOVERED.
-
-  2. Export your account xpub for the watch-only node:
-       lncli --network=[mainnet|signet] wallet accounts list
-
-  3. Copy the TLS certificate to your watch-only node:
-       ~/.lnd/tls.cert
-
-  4. Bake a macaroon with signing permissions for the watch-only node:
-       lncli --network=[mainnet|signet] bakemacaroon \
-         signer:generate-key signer:sign-message signer:signoutputraw \
-         walletkit:derivekey walletkit:deriveNextKey walletkit:signpsbt
+IMPORTANT: Back up your seed phrase and then delete it from disk:
+  shred -u ~/.lnd/seed_phrase.txt
 
 EOF
