@@ -130,10 +130,16 @@ for FILE in "$SIGNER_TLS_CERT" "$SIGNER_MACAROON" "$SIGNER_ACCOUNTS"; do
     fi
 done
 if [[ $MISSING_FILES -eq 1 ]]; then
-    echo "[-] Please copy the following files from your signer node before continuing:"
-    echo "    ~/.lnd/tls.cert        → $SIGNER_TLS_CERT"
-    echo "    ~/.lnd/signer.macaroon → $SIGNER_MACAROON"
-    echo "    ~/.lnd/accounts.json   → $SIGNER_ACCOUNTS"
+    echo "[-] One or more required signer files are missing."
+    echo "    Copy the following files from your signer node to this server, then re-run this script."
+    echo "    Note: the signer's tls.cert must be renamed to signer-tls.cert to avoid conflict with"
+    echo "    the routing node's own tls.cert."
+    echo ""
+    echo "    scp user@<signer-ip>:~/.lnd/tls.cert        $SIGNER_TLS_CERT"
+    echo "    scp user@<signer-ip>:~/.lnd/signer.macaroon $SIGNER_MACAROON"
+    echo "    scp user@<signer-ip>:~/.lnd/accounts.json   $SIGNER_ACCOUNTS"
+    echo ""
+    echo "    Once copied, re-run this script to continue. All completed steps will be skipped."
     exit 1
 fi
 echo "[+] All required signer files found."
