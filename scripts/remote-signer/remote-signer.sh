@@ -386,4 +386,9 @@ Copy these files to your watch-only node:
 IMPORTANT: Back up your seed phrase and then delete it from disk:
   shred -u ~/.lnd/seed_phrase.txt
 
+NOTE: To use lncli in this terminal session, run:
+  source ~/.profile
+Then you can run commands such as:
+  lncli --network=<mainnet|signet> getinfo
+
 EOF
