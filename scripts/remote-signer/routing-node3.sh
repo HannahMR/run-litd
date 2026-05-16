@@ -100,4 +100,10 @@ cat <<'EOF'
 `---._.-------------------------------------------------------------._.---'
 
 [+] Your Litd node is now up and running!
+
+[+] Next step: connect to a peer to sync the Lightning graph.
+    Without at least one peer, your node will show "synced_to_graph: false".
+
+    Find a signet peer and connect with:
+      lncli --network=<mainnet|signet> connect <pubkey>@<host>:<port>
 EOF
