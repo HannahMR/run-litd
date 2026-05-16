@@ -13,6 +13,7 @@ You can view a demo video of these scripts [here](https://youtu.be/lopHP_nF0tE)
 3. [Server Prep](https://github.com/HannahMR/run-litd/#server-prep) 
 4. [Bitcoind Setup](https://github.com/HannahMR/run-litd/#bitcoind-setup)
 5. [Litd Setup](https://github.com/HannahMR/run-litd/#litd-setup)
+6. [Remote Signer Setup](https://github.com/HannahMR/run-litd/#remote-signer-setup)
 
 
 
@@ -132,4 +133,59 @@ The scripts should be run with sudo. Don't worry, repo's, files, etc. will be ow
 
 Happy Building! 
 
+
+## Remote Signer Setup
+
+This section covers setting up a more secure node configuration using LND's remote signer feature. Instead of running a single node that holds private keys and routes payments, the remote signer architecture splits this into two nodes with distinct roles.
+
+### Why Use a Remote Signer?
+
+A standard Lightning node keeps its private keys on the same machine that is publicly reachable on the internet. This is convenient, but it means your keys are exposed to any vulnerabilities in the software stack or the server itself.
+
+With a remote signer, private keys never touch an internet-connected machine. The **signer node** holds the keys and lives somewhere protected — ideally on a machine with no inbound internet access, on a private network, or behind a firewall that only allows traffic from the routing node. The **routing node** is the public-facing litd node that manages channels and routes payments, but holds no private keys of its own. When a signature is needed, the routing node calls out to the signer over an authenticated gRPC connection.
+
+This significantly reduces your attack surface. Even if the routing node is compromised, an attacker cannot access your private keys.
+
+### The Signer Macaroon
+
+Rather than giving the routing node full admin access to the signer, we bake a macaroon with the minimum permissions needed for signing operations. This macaroon grants the routing node permission to:
+
+- Request signatures (`signer:generate`, `signer:read`, `signer:write`)
+- Derive keys for new addresses and channel operations (`walletrpc.WalletKit` URIs)
+
+Nothing else. The routing node cannot move funds from the signer, cannot create invoices on the signer, and cannot perform any other admin operations. This limits the blast radius if the routing node or the macaroon itself is ever compromised.
+
+### How It Works
+
+Three files are generated on the signer node and transferred securely to the routing node:
+
+- `tls.cert` — the signer's TLS certificate, used by the routing node to authenticate the gRPC connection
+- `signer.macaroon` — the limited-permission macaroon described above
+- `accounts.json` — the extended public keys (xpubs) used to initialize the routing node's watch-only wallet
+
+The routing node's wallet is initialized with `lncli createwatchonly` rather than the standard wallet creation flow. This creates a wallet that can derive addresses and track balances, but cannot sign anything locally. All signing requests are forwarded to the signer node.
+
+### Remote Signer Setup Helper Scripts
+
+These scripts are found in [/scripts/remote-signer/](https://github.com/HannahMR/run-litd/blob/main/scripts/remote-signer/).
+
+**Step 1 — Set up the signer node** using either:
+- [remote-signer.sh](https://github.com/HannahMR/run-litd/blob/main/scripts/remote-signer/remote-signer.sh) (source build)
+- [remote-signer-binary.sh](https://github.com/HannahMR/run-litd/blob/main/scripts/remote-signer/remote-signer-binary.sh) (binary install)
+
+These scripts install LND, create the wallet, export the accounts file, and bake the signing macaroon. When complete, transfer the three output files to the routing node server.
+
+**Step 2 — Set up the routing node** using the routing-node scripts. If installing from source run [routing-node.sh](https://github.com/HannahMR/run-litd/blob/main/scripts/remote-signer/routing-node.sh), [routing-node2.sh](https://github.com/HannahMR/run-litd/blob/main/scripts/remote-signer/routing-node2.sh), and [routing-node3.sh](https://github.com/HannahMR/run-litd/blob/main/scripts/remote-signer/routing-node3.sh). If installing from binary run [routing-node-binary.sh](https://github.com/HannahMR/run-litd/blob/main/scripts/remote-signer/routing-node-binary.sh) and [routing-node3.sh](https://github.com/HannahMR/run-litd/blob/main/scripts/remote-signer/routing-node3.sh).
+
+These scripts install litd, check that the signer files are in place, generate a `lit.conf` configured to point at the signer, and set up the systemd service.
+
+Don't forget to make the scripts executable before running them.
+
+```$ chmod +x scripts/remote-signer/*```
+
+The scripts should be run with sudo.
+
+```$ sudo ./remote-signer-binary.sh```
+```$ sudo ./routing-node-binary.sh```
+```$ sudo ./routing-node3.sh```
 
