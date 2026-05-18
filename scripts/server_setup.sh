@@ -20,12 +20,21 @@ if id "$NEW_USER" &>/dev/null; then
 else
   echo "Creating user $NEW_USER..."
   adduser --gecos "" $NEW_USER
-  adduser --gecos "" $NEW_USER && passwd $NEW_USER
-  echo "$NEW_USER ALL=(ALL:ALL) ALL" >> /etc/sudoers
-  echo "User $NEW_USER added and given sudo access."
+  echo "User $NEW_USER created."
 fi
 
-# 2. Set up SSH authorized keys
+# 2. Grant sudo access if not already configured
+if sudo -l -U $NEW_USER 2>/dev/null | grep -q "(ALL)"; then
+  echo "User $NEW_USER already has sudo access."
+else
+  echo "Granting sudo access to $NEW_USER..."
+  echo "$NEW_USER ALL=(ALL:ALL) ALL" | tee /etc/sudoers.d/$NEW_USER > /dev/null
+  chmod 0440 /etc/sudoers.d/$NEW_USER
+  visudo -cf /etc/sudoers.d/$NEW_USER || { echo "ERROR: Invalid sudoers file — removing."; rm /etc/sudoers.d/$NEW_USER; exit 1; }
+  echo "Sudo access granted."
+fi
+
+# 3. Set up SSH authorized keys
 if [ ! -d "$SSH_DIR" ]; then
   echo "Setting up .ssh directory for $NEW_USER..."
   mkdir -p $SSH_DIR
@@ -61,7 +70,7 @@ done <<< "$USER_KEYS"
 
 echo "SSH keys verified for $NEW_USER."
 
-# 3. Disable root login and password authentication
+# 4. Disable root login and password authentication
 SSHD_CONFIG="/etc/ssh/sshd_config"
 
 if grep -q "^PermitRootLogin yes" $SSHD_CONFIG; then
