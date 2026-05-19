@@ -37,6 +37,7 @@ MAINNET_PEERS=(
     "node.lightning.directory:8333"
 )
 SIGNET_PEERS=(
+    "172.233.20.188:38333"
     "btcd-signet.lightning.computer:38333"
 )
 
