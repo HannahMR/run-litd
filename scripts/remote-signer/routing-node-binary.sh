@@ -75,8 +75,8 @@ else
     echo "[+] Extracting litd binary..."
     tar -xvzf "$DOWNLOAD_DIR/lightning-terminal-linux-amd64-$LITD_VERSION.tar.gz" -C "$DOWNLOAD_DIR" --strip-components=1
 
-    echo "[+] Installing binaries to /usr/local/bin..."
-    find "$DOWNLOAD_DIR" -maxdepth 1 -type f -executable -exec sudo install -m 0755 -o root -g root {} /usr/local/bin/ \;
+    echo "[+] Moving binaries to /usr/local/bin..."
+    sudo mv "$DOWNLOAD_DIR"/* /usr/local/bin/
 
     echo "[+] Cleaning up temporary files..."
     rm -rf "$DOWNLOAD_DIR"

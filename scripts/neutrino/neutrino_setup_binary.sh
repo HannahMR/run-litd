@@ -83,7 +83,7 @@ else
 
     echo "[+] Extracting and installing litd..."
     tar -xvzf "$DOWNLOAD_DIR/lightning-terminal-linux-amd64-$LITD_VERSION.tar.gz" -C "$DOWNLOAD_DIR" --strip-components=1
-    find "$DOWNLOAD_DIR" -maxdepth 1 -type f -executable -exec sudo install -m 0755 -o root -g root {} /usr/local/bin/ \;
+    sudo mv "$DOWNLOAD_DIR"/* /usr/local/bin/
     rm -rf "$DOWNLOAD_DIR"
     echo "[+] litd installed successfully."
 
