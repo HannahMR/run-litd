@@ -94,7 +94,7 @@ cd "$USER_HOME"
 
 # Generate RPC password
 echo "[+] Generating RPC password for other services to connect to bitcoind..."
-wget -q https://raw.githubusercontent.com/bitcoin/bitcoin/master/share/rpcauth/rpcauth.py -O rpcauth.py
+wget -q "https://raw.githubusercontent.com/bitcoin/bitcoin/v${BITCOIN_VERSION}/share/rpcauth/rpcauth.py" -O rpcauth.py
 if [[ ! -f rpcauth.py ]]; then
     echo "[-] Failed to download RPC password generator. Exiting."
     exit 1
