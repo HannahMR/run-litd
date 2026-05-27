@@ -28,7 +28,7 @@ KEY_ID="26984CB69EB8C4A26196F7A4D7D916376026F177"
 KEY_SERVER="hkps://keyserver.ubuntu.com"
 DOWNLOAD_DIR="/tmp/litd_release_verification"
 
-# Default Neutrino peers (Lightning Labs public nodes)
+# Default Neutrino peers
 # These must support BIP 157/158 compact block filters.
 MAINNET_PEERS=(
     "btcd-mainnet.lightning.computer:8333"
@@ -36,7 +36,6 @@ MAINNET_PEERS=(
 )
 SIGNET_PEERS=(
     "172.233.20.188:38333"
-    "btcd-signet.lightning.computer:38333"
 )
 
 # Check root

@@ -38,7 +38,6 @@ MAINNET_PEERS=(
 )
 SIGNET_PEERS=(
     "172.233.20.188:38333"
-    "btcd-signet.lightning.computer:38333"
 )
 
 # Check root
