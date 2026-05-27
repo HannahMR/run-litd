@@ -264,6 +264,11 @@ lnd.remotesigner.macaroonpath=$SIGNER_MACAROON
     echo "[+] Ownership set to ${SUDO_USER:-$USER} for $LIT_CONF_FILE."
 fi
 
+echo ""
+echo "[+] Build complete! Binaries are installed to $USER_HOME/go/bin."
+echo "    If litd or lncli are not found, start a new shell session or run:"
+echo "      source ~/.profile"
+echo ""
 echo "Now you have a task! Start litd with $ litd, do so as the user who will be running litd."
 echo "Initialize the watch-only wallet using:"
 echo "  $ lncli --network=[yournetwork] createwatchonly ~/.lnd/accounts.json"

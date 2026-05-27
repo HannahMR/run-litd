@@ -225,8 +225,13 @@ lnd.protocol.custom-message=17
     echo "[+] Ownership set to ${SUDO_USER:-$USER} for $LIT_CONF_FILE."
 fi
 
+echo ""
+echo "[+] Build complete! Binaries are installed to $USER_HOME/go/bin."
+echo "    If litd or lncli are not found, start a new shell session or run:"
+echo "      source ~/.profile"
+echo ""
 echo "Now you have a task! Start litd with $ litd, do so as the user who will be running litd."
 echo "Walk through the wallet creation process using $ lncli --network=[yournetwork] create."
 echo "Use the already generated password which can be found via $ cat ~/.lnd/wallet_password"
-echo "DO NOT FORGET TO PROPERLY BACKUP YOUR SEED!!!" 
+echo "DO NOT FORGET TO PROPERLY BACKUP YOUR SEED!!!"
 echo "Then, stop litd, and run the next script... almost there!!!"
